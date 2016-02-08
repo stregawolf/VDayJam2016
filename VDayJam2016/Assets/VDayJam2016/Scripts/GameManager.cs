@@ -30,6 +30,7 @@ public class GameManager : MonoBehaviour {
     protected PlayerController mPlayer1;
 
     protected List<GameObject> mCollectables = new List<GameObject>();
+    protected List<GameObject> mEnemies = new List<GameObject>();
 
     protected void Awake()
     {
@@ -54,9 +55,9 @@ public class GameManager : MonoBehaviour {
 
 	protected void Start () 
     {
-        GameObject goalObj = Instantiate(mGoalPrefab, Vector3.zero, Quaternion.identity) as GameObject;
+        GameObject goalObj = SpawnPrefab(mGoalPrefab);
         mGoal = goalObj.GetComponent<Goal>();
-        GameObject playerObj = Instantiate(mPlayerPrefab, Vector3.zero, Quaternion.identity) as GameObject;
+        GameObject playerObj = SpawnPrefab(mPlayerPrefab);
         mPlayer1 = playerObj.GetComponent<PlayerController>();
         mFollowCamera.Init(mPlayer1.transform);
 
@@ -72,6 +73,18 @@ public class GameManager : MonoBehaviour {
             Signal.Unregister(SignalType.LevelComplete, OnLevelComplete);
             sInstance = null;
         }
+    }
+
+    public GameObject SpawnPrefab(GameObject prefab)
+    {
+        return SpawnPrefab(prefab, Vector3.zero, Quaternion.identity);
+    }
+
+    public GameObject SpawnPrefab(GameObject prefab, Vector3 pos, Quaternion rotation)
+    {
+        GameObject obj = Instantiate(prefab, pos, rotation) as GameObject;
+        obj.transform.SetParent(transform);
+        return obj;
     }
 
     public Room GetRandomRoom()
@@ -96,6 +109,42 @@ public class GameManager : MonoBehaviour {
         mDungeon.SetCell(mGoal.transform.position, DungeonCell.TileType.Goal);
 
         // Generate room contents
+        GenerateCollectables();
+        GenerateEnemies();
+    }
+
+    protected void GenerateEnemies()
+    {
+        for (int i = 0, n = mEnemies.Count; i < n; ++i)
+        {
+            Destroy(mEnemies[i].gameObject);
+        }
+        mEnemies.Clear();
+
+        for (int i = 0; i < mTestGenerationData.mNumEnemies; ++i)
+        {
+            int attempts = 0;
+            do
+            {
+                Room room = GetRandomRoom();
+                Vector2i randPos = room.GetRandomPos();
+                DungeonCell cell = mDungeon.GetCell(randPos.mX, randPos.mY);
+                if (cell.mTileType == DungeonCell.TileType.Ground)
+                {
+                    cell.mTileType = DungeonCell.TileType.Collectable;
+                    GameObject prefab = mTestGenerationData.mEnemyPrefabs[Random.Range(0, mTestGenerationData.mEnemyPrefabs.Length)];
+                    GameObject collectableObj = SpawnPrefab(prefab, mDungeon.GetTilePosition(randPos.mX, randPos.mY), Quaternion.identity);
+                    mEnemies.Add(collectableObj);
+                    break;
+                }
+                attempts++;
+
+            } while (attempts < kMaxPlacementAttempts);
+        }
+    }
+
+    protected void GenerateCollectables()
+    {
         for (int i = 0, n = mCollectables.Count; i < n; ++i)
         {
             Destroy(mCollectables[i].gameObject);
@@ -113,7 +162,7 @@ public class GameManager : MonoBehaviour {
                 if (cell.mTileType == DungeonCell.TileType.Ground)
                 {
                     cell.mTileType = DungeonCell.TileType.Collectable;
-                    GameObject collectableObj = Instantiate(mCollectablePrefab, mDungeon.GetTilePosition(randPos.mX, randPos.mY), Quaternion.identity) as GameObject;
+                    GameObject collectableObj = SpawnPrefab(mCollectablePrefab, mDungeon.GetTilePosition(randPos.mX, randPos.mY), Quaternion.identity);
                     mCollectables.Add(collectableObj);
                     break;
                 }

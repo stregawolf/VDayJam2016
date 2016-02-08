@@ -5,7 +5,9 @@ public class BaseActor : MonoBehaviour {
 
     public float mSpeed = 5.0f;
 
-    protected Rigidbody mRigidbody;
+    public Animator mAnimator;
+    public Rigidbody mRigidbody;
+
     protected Vector3 mMoveDir;
 
     protected virtual void Awake()
@@ -13,6 +15,11 @@ public class BaseActor : MonoBehaviour {
         if (mRigidbody == null)
         {
             mRigidbody = GetComponent<Rigidbody>();
+        }
+
+        if(mAnimator == null)
+        {
+            mAnimator = GetComponent<Animator>();
         }
     }
 
@@ -24,6 +31,7 @@ public class BaseActor : MonoBehaviour {
     public virtual void MoveDir(Vector3 dir)
     {
         mMoveDir = dir.normalized;
+        mAnimator.SetBool("IsWalking", dir.magnitude > 0);
     }
 
     public virtual void LookAtPoint(Vector3 pos)
@@ -38,8 +46,8 @@ public class BaseActor : MonoBehaviour {
         transform.rotation = Quaternion.LookRotation(dir, Vector3.up);
     }
 
-    protected virtual void FixedUpdate()
+    protected virtual void Update()
     {
-        mRigidbody.MovePosition(mRigidbody.position + mMoveDir * mSpeed * Time.fixedDeltaTime);
+        transform.position += mMoveDir * mSpeed * Time.deltaTime;
     }
 }
