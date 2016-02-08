@@ -20,6 +20,7 @@ public class FollowCamera : BaseCamera {
     public void Init(Transform target)
     {
         mTarget = target;
+        transform.position = new Vector3(mTarget.position.x, transform.position.y, mTarget.position.z) + mOffset;
     }
 
     public override void UpdatePosition()

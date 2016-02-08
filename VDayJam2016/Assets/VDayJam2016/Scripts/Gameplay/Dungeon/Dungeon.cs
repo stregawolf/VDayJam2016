@@ -17,7 +17,6 @@ public class Dungeon : MonoBehaviour {
 
     public int kMaxGenerationAttempts = 100;
 
-    public Vector3 kTileStartPosition = Vector3.zero;
     public Transform kTileParent = null;
 
     public GameObject[] kTilePrefabs;
@@ -279,7 +278,7 @@ public class Dungeon : MonoBehaviour {
 
     public Vector3 GetTilePosition(int x, int y)
     {
-        return kTileStartPosition + new Vector3(x, 0, y);
+        return transform.position + new Vector3(x, 0, y);
     }
 
     [ContextMenu("ClearGraphics")]

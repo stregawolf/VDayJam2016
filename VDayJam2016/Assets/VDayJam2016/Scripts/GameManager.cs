@@ -30,7 +30,7 @@ public class GameManager : MonoBehaviour {
     protected PlayerController mPlayer1;
 
     protected List<GameObject> mCollectables = new List<GameObject>();
-    protected List<GameObject> mEnemies = new List<GameObject>();
+    protected List<EnemyController> mEnemies = new List<EnemyController>();
 
     protected void Awake()
     {
@@ -133,8 +133,10 @@ public class GameManager : MonoBehaviour {
                 {
                     cell.mTileType = DungeonCell.TileType.Collectable;
                     GameObject prefab = mTestGenerationData.mEnemyPrefabs[Random.Range(0, mTestGenerationData.mEnemyPrefabs.Length)];
-                    GameObject collectableObj = SpawnPrefab(prefab, mDungeon.GetTilePosition(randPos.mX, randPos.mY), Quaternion.identity);
-                    mEnemies.Add(collectableObj);
+                    GameObject enemyObj = SpawnPrefab(prefab, mDungeon.GetTilePosition(randPos.mX, randPos.mY), Quaternion.identity);
+                    EnemyController enemy = enemyObj.GetComponent<EnemyController>();
+                    enemy.Init();
+                    mEnemies.Add(enemy);
                     break;
                 }
                 attempts++;
@@ -147,7 +149,7 @@ public class GameManager : MonoBehaviour {
     {
         for (int i = 0, n = mCollectables.Count; i < n; ++i)
         {
-            Destroy(mCollectables[i].gameObject);
+            Destroy(mCollectables[i]);
         }
         mCollectables.Clear();
 
@@ -180,6 +182,16 @@ public class GameManager : MonoBehaviour {
     public void OnLevelComplete()
     {
         GenerateLevel();
+    }
+
+    protected void Update()
+    {
+        mPlayer1.UpdatePlayerControls();
+
+        for(int i = 0, n = mEnemies.Count; i < n; ++i)
+        {
+            mEnemies[i].UpdateBehavior(mPlayer1.mPlayer);
+        }
     }
 
     protected void LateUpdate()
