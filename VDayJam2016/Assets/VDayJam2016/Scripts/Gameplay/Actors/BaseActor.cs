@@ -162,5 +162,6 @@ public class BaseActor : MonoBehaviour {
     protected virtual void Update()
     {
         transform.position += mMoveDir * mSpeedFactor * mMaxSpeed * Time.deltaTime;
+        //mRigidbody.MovePosition(mRigidbody.position + mMoveDir * mSpeedFactor * mMaxSpeed * Time.deltaTime);
     }
 }

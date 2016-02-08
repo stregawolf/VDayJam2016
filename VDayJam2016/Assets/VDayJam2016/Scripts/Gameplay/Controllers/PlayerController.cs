@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour {
     {
         Vector3 moveDir = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         //Debug.Log(moveDir);
-        mPlayer.MoveDir(moveDir, moveDir.magnitude);
+        mPlayer.MoveDir(moveDir, Mathf.Clamp01(moveDir.magnitude));
 
         Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
         float dist;
