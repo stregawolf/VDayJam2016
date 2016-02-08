@@ -20,6 +20,8 @@ public class BaseActor : MonoBehaviour {
     protected Vector3 mMoveDir;
     protected float mSpeedFactor = 1.0f;
 
+    protected bool mIsFlickering = false;
+    public bool IsFlickering {  get { return mIsFlickering; } }
 
     protected virtual void Awake()
     {
@@ -66,6 +68,7 @@ public class BaseActor : MonoBehaviour {
 
     public IEnumerator Flicker(System.Action onComplete = null)
     {
+        mIsFlickering = true;
         for (int i = 0; i < 10; ++i)
         {
             SetColor(new Color(Random.value + 0.5f, Random.value + 0.5f, Random.value + 0.5f));
@@ -74,7 +77,8 @@ public class BaseActor : MonoBehaviour {
 
         ResetColor();
 
-        if(onComplete != null)
+        mIsFlickering = false;
+        if (onComplete != null)
         {
             onComplete();
         }
@@ -125,13 +129,14 @@ public class BaseActor : MonoBehaviour {
         transform.rotation = Quaternion.LookRotation(dir, Vector3.up);
     }
 
-    public void TakeDamage(int amount)
+    public virtual void TakeDamage(int amount)
     {
-        if(mHp < 0)
+        if (mHp < 0 || IsFlickering)
         {
             return;
         }
 
+        TriggerAnimation("Hurt");
         mHp -= amount;
         if(mHp <= 0)
         {

@@ -27,9 +27,15 @@ public class BaseEnemy : BaseActor {
             {
                 Vector3 knockback = player.transform.position - transform.position;
                 knockback.Normalize();
-                player.KnockBack(knockback * mAttackPower / 2.0f);
+                player.KnockBack(knockback * mAttackPower);
                 player.TakeDamage(mAttackPower);
             }
         }
+    }
+
+    public override void TakeDamage(int amount)
+    {
+        Stop();
+        base.TakeDamage(amount);
     }
 }

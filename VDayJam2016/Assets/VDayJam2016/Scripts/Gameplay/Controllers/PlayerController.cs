@@ -28,5 +28,10 @@ public class PlayerController : MonoBehaviour {
             Vector3 hit = mouseRay.GetPoint(dist);
             mPlayer.LookAtPoint(hit);
         }
+
+        if(Input.GetMouseButtonDown(0))
+        {
+            mPlayer.SwingWeapon();
+        }
     }
 }

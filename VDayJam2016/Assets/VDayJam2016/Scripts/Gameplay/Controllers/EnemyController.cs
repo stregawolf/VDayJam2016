@@ -38,6 +38,11 @@ public class EnemyController : MonoBehaviour {
 
     public virtual void UpdateBehavior(BasePlayer player)
     {
+        if(mEnemy.IsFlickering || mEnemy.Hp <= 0)
+        {
+            return;
+        }
+
         switch(mCurrentState)
         {
             case EnemyState.Idle:
