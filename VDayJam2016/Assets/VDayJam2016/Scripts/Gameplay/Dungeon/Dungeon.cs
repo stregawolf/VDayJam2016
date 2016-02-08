@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 
 public class Dungeon : MonoBehaviour {
+    public static readonly Quaternion[] kTileRotations = { Quaternion.identity, Quaternion.Euler(0, 90, 0), Quaternion.Euler(0, 180, 0), Quaternion.Euler(0, 270, 0) };
+
     public int kSeed = 0;
 
     public int kWidth = 10;
@@ -19,7 +21,15 @@ public class Dungeon : MonoBehaviour {
 
     public Transform kTileParent = null;
 
-    public GameObject[] kTilePrefabs;
+    [System.Serializable]
+    public class TileSet
+    {
+        public DungeonCell.TileType mType;
+        public bool mAllowRandomOrientation = true;
+        public GameObject[] mPrefabs;
+    }
+    public TileSet[] kTilePrefabs;
+    protected Dictionary<DungeonCell.TileType, TileSet> mTileMapping = new Dictionary<DungeonCell.TileType, TileSet>();
 
     public bool kRandomizeInitialRoomPosition = true;
     public Vector2i kInitialRoomPosition;
@@ -47,6 +57,11 @@ public class Dungeon : MonoBehaviour {
         if (mGenerateOnAwake)
         {
             GenerateDungeon();
+        }
+
+        for(int i = 0, n = kTilePrefabs.Length; i < n; ++i)
+        {
+            mTileMapping.Add(kTilePrefabs[i].mType, kTilePrefabs[i]);
         }
     }
     /* TESTING
@@ -300,11 +315,26 @@ public class Dungeon : MonoBehaviour {
             for (int x = 0; x < kWidth; ++x)
             {
                 DungeonCell cell = mGrid.GetGridCell(x,y);
-                GameObject tileObj = Instantiate(kTilePrefabs[(int)cell.mTileType], GetTilePosition(x, y), Quaternion.identity) as GameObject;
-                tileObj.transform.SetParent(kTileParent);
-                mTileObjects.Add(tileObj);
+                TileSet tileSet;
+                if(mTileMapping.TryGetValue(cell.mTileType, out tileSet))
+                {
+                    GameObject tilePrefab = GetRandomTilePrefab(tileSet.mPrefabs);
+                    Quaternion rotation = Quaternion.identity;
+                    if(tileSet.mAllowRandomOrientation)
+                    {
+                        rotation = kTileRotations[Random.Range(0, kTileRotations.Length)];
+                    }
+                    GameObject tileObj = Instantiate(tilePrefab, GetTilePosition(x, y), rotation) as GameObject;
+                    tileObj.transform.SetParent(kTileParent);
+                    mTileObjects.Add(tileObj);
+                }
             }
         }
+    }
+
+    protected GameObject GetRandomTilePrefab(GameObject[] prefabs)
+    {
+        return prefabs[Random.Range(0, prefabs.Length)];
     }
 }
 
