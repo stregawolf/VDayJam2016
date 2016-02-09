@@ -4,6 +4,8 @@ using System.Collections;
 public class BasePlayer : BaseActor {
     public float mSwingRadius = 1.0f;
     public int mMeleeDamage = 1;
+    public GameObject mProjectilePrefab;
+    public float mThrowVelocity = 20.0f;
 
     public virtual void SwingWeapon()
     {
@@ -28,5 +30,18 @@ public class BasePlayer : BaseActor {
                 }
             }
         }
+    }
+
+    public void ThrowProjectile()
+    {
+        Vector3 startPos = transform.position + transform.up * 0.5f + transform.forward * 0.5f;
+        GameObject projectileObj = GameManager.Instance.SpawnPrefab(mProjectilePrefab, startPos, Random.rotation);
+        BaseProjectile projectile = projectileObj.GetComponent<BaseProjectile>();
+        projectile.Throw(this, startPos, transform.forward, mThrowVelocity);
+    }
+
+    public void UseSupport()
+    {
+
     }
 }

@@ -5,6 +5,14 @@ public class PlayerController : MonoBehaviour {
     public BasePlayer mPlayer;
     protected Plane mGroundPlane;
 
+    public enum EquipedWeaponType
+    {
+        Melee,
+        Ranged,
+        Support,
+    }
+    protected EquipedWeaponType mEquipedWeaponType = EquipedWeaponType.Melee;
+
     protected void Awake()
     {
         if(mPlayer == null)
@@ -29,9 +37,33 @@ public class PlayerController : MonoBehaviour {
             mPlayer.LookAtPoint(hit);
         }
 
-        if(Input.GetMouseButtonDown(0))
+        if(Input.GetKeyDown(KeyCode.Alpha1))
         {
-            mPlayer.SwingWeapon();
+            mEquipedWeaponType = EquipedWeaponType.Melee;
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            mEquipedWeaponType = EquipedWeaponType.Ranged;
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            mEquipedWeaponType = EquipedWeaponType.Support;
+        }
+
+            if (Input.GetMouseButtonDown(0))
+        {
+            switch(mEquipedWeaponType)
+            {
+                case EquipedWeaponType.Melee:
+                    mPlayer.SwingWeapon();
+                    break;
+                case EquipedWeaponType.Ranged:
+                    mPlayer.ThrowProjectile();
+                    break;
+                case EquipedWeaponType.Support:
+                    mPlayer.UseSupport();
+                    break;
+            }
         }
     }
 }

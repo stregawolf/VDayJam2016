@@ -11,6 +11,7 @@ public class BaseActor : MonoBehaviour {
     public Animator mAnimator;
     protected string mPlayedAnimationName;
     public Rigidbody mRigidbody;
+    public Collider mCollider;
     public Renderer[] mRenderers;
     protected Color[] mOriginalColors;
 
@@ -27,12 +28,17 @@ public class BaseActor : MonoBehaviour {
     {
         if (mRigidbody == null)
         {
-            mRigidbody = GetComponent<Rigidbody>();
+            mRigidbody = GetComponentInChildren<Rigidbody>();
+        }
+
+        if(mCollider == null)
+        {
+            mCollider = GetComponentInChildren<Collider>();
         }
 
         if(mAnimator == null)
         {
-            mAnimator = GetComponent<Animator>();
+            mAnimator = GetComponentInChildren<Animator>();
         }
 
         if(mModel == null)
@@ -151,7 +157,11 @@ public class BaseActor : MonoBehaviour {
 
     public void KnockBack(Vector3 vec)
     {
-        mRigidbody.MovePosition(mRigidbody.position + vec);
+        Vector3 dest = mRigidbody.position + vec;
+        if(IsValidPosition(dest))
+        {
+            mRigidbody.MovePosition(dest);
+        }
     }
 
     public virtual void OnDeath()
@@ -161,7 +171,16 @@ public class BaseActor : MonoBehaviour {
 
     protected virtual void Update()
     {
-        transform.position += mMoveDir * mSpeedFactor * mMaxSpeed * Time.deltaTime;
+        Vector3 dest = transform.position + mMoveDir * mSpeedFactor * mMaxSpeed * Time.deltaTime;
+        if(IsValidPosition(dest))
+        {
+            transform.position = dest;
+        }
         //mRigidbody.MovePosition(mRigidbody.position + mMoveDir * mSpeedFactor * mMaxSpeed * Time.deltaTime);
+    }
+
+    public bool IsValidPosition(Vector3 pos)
+    {
+        return GameManager.Instance.mDungeon.GetCell(pos).mTileType != DungeonCell.TileType.Wall;
     }
 }
