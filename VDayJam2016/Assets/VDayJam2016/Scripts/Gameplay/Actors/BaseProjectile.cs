@@ -10,7 +10,7 @@ public class BaseProjectile : MonoBehaviour {
     public Collider mCollider;
 
     protected BaseActor mOwner;
-
+    protected Vector3 mLastPos;
     protected void Awake()
     {
         if(mRigidbody == null)
@@ -22,6 +22,34 @@ public class BaseProjectile : MonoBehaviour {
         {
             mCollider = GetComponentInChildren<Collider>();
         }
+    }
+
+    protected void FixedUpdate()
+    {
+        if(GameManager.Instance.mDungeon.GetCell(mRigidbody.position).mTileType == DungeonCell.TileType.Wall)
+        {
+            mRigidbody.position = mLastPos;
+        }
+
+        Vector3 dest = mRigidbody.position + mRigidbody.velocity * Time.fixedDeltaTime;
+        if (GameManager.Instance.mDungeon.GetCell(dest).mTileType == DungeonCell.TileType.Wall)
+        {
+            Vector2i currCell = GameManager.Instance.mDungeon.WorldToCellPos(mRigidbody.position);
+            Vector2i destCell = GameManager.Instance.mDungeon.WorldToCellPos(dest);
+            Vector3 vel = mRigidbody.velocity;
+            if(destCell.mX - currCell.mX != 0)
+            {
+                vel.x *= -0.5f;
+            }
+            if(destCell.mY - currCell.mY != 0)
+            {
+                vel.z *= -0.5f;
+            }
+            vel.y *= 0.5f;
+            mRigidbody.velocity = vel;
+        }
+
+        mLastPos = mRigidbody.position;
     }
 
     public virtual void Throw(BaseActor owner, Vector3 startPos, Vector3 dir, float speed)
