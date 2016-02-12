@@ -2,6 +2,8 @@
 using System.Collections;
 
 public class BaseActor : MonoBehaviour {
+    public const float kRadius = 0.3f;
+
     public int mMaxHp = 10;
     public float mMaxSpeed = 5.0f;
     public bool mbFaceMovementDirection = true;
@@ -23,6 +25,8 @@ public class BaseActor : MonoBehaviour {
 
     protected bool mIsFlickering = false;
     public bool IsFlickering {  get { return mIsFlickering; } }
+
+    protected Vector3 mLastPos;
 
     protected virtual void Awake()
     {
@@ -157,11 +161,15 @@ public class BaseActor : MonoBehaviour {
 
     public void KnockBack(Vector3 vec)
     {
+        /*
         Vector3 dest = mRigidbody.position + vec;
-        if(IsValidPosition(dest))
+        if(GameManager.Instance.mDungeon.GetCell(dest + vec.normalized * 0.3f).mTileType != DungeonCell.TileType.Wall)
         {
             mRigidbody.MovePosition(dest);
         }
+        */
+        MoveBy(Vector3.Scale(vec, Vector3.right));
+        MoveBy(Vector3.Scale(vec, Vector3.forward));
     }
 
     public virtual void OnDeath()
@@ -171,16 +179,34 @@ public class BaseActor : MonoBehaviour {
 
     protected virtual void Update()
     {
+        /*
         Vector3 dest = transform.position + mMoveDir * mSpeedFactor * mMaxSpeed * Time.deltaTime;
-        if(IsValidPosition(dest))
+        if(GameManager.Instance.mDungeon.GetCell(dest + mMoveDir * 0.3f).mTileType != DungeonCell.TileType.Wall)
         {
             transform.position = dest;
         }
-        //mRigidbody.MovePosition(mRigidbody.position + mMoveDir * mSpeedFactor * mMaxSpeed * Time.deltaTime);
+        */
+        Vector3 moveDelta = mMoveDir * mSpeedFactor * mMaxSpeed * Time.deltaTime;
+        MoveBy(Vector3.Scale(moveDelta, Vector3.right));
+        MoveBy(Vector3.Scale(moveDelta, Vector3.forward));
     }
 
-    public bool IsValidPosition(Vector3 pos)
+    protected virtual void MoveBy(Vector3 vec)
     {
-        return GameManager.Instance.mDungeon.GetCell(pos).mTileType != DungeonCell.TileType.Wall;
+        Vector3 dest = transform.position + vec;
+        if (GameManager.Instance.mDungeon.GetCell(dest + vec.normalized * kRadius).mTileType != DungeonCell.TileType.Wall)
+        {
+            transform.position = dest;
+        }
+    }
+
+    protected virtual void FixedUpdate()
+    {
+        if (GameManager.Instance.mDungeon.GetCell(mRigidbody.position).mTileType == DungeonCell.TileType.Wall)
+        {
+            mRigidbody.position = mLastPos;
+        }
+
+        mLastPos = mRigidbody.position;
     }
 }

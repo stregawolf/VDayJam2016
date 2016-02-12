@@ -42,6 +42,10 @@ public class Dungeon : MonoBehaviour {
 
     public bool mGenerateOnAwake = false;
 
+    public Material mDungeonMaterial;
+    public int kRenderGroupSize = 10;
+    protected Dictionary<Vector2i, GameObject> mRenderGroups = new Dictionary<Vector2i, GameObject>();
+
     protected void Awake()
     {
         if (kTileParent == null)
@@ -299,11 +303,29 @@ public class Dungeon : MonoBehaviour {
     [ContextMenu("ClearGraphics")]
     public void ClearTileGraphics()
     {
-        for (int i = mTileObjects.Count - 1; i >= 0; --i)
+        foreach (var pair in mRenderGroups)
         {
-            Destroy(mTileObjects[i]);
+            Destroy(pair.Value);
         }
+        mRenderGroups.Clear();
         mTileObjects.Clear();
+    }
+
+    protected GameObject GetRenderGroup(int tileX, int tileY)
+    {
+        Vector2i renderGroupKey = new Vector2i(tileX / kRenderGroupSize, tileY / kRenderGroupSize);
+        GameObject renderGroup = null;
+        if(!mRenderGroups.TryGetValue(renderGroupKey, out renderGroup) || renderGroup == null)
+        {
+            renderGroup = new GameObject(string.Format("RenderGroup-{0}", renderGroupKey));
+            renderGroup.transform.position = transform.position;
+            renderGroup.transform.SetParent(kTileParent);
+            renderGroup.AddComponent<MeshFilter>();
+            MeshRenderer meshRenderer = renderGroup.AddComponent<MeshRenderer>();
+            meshRenderer.material = mDungeonMaterial;
+            mRenderGroups.Add(renderGroupKey, renderGroup);
+        }
+        return renderGroup;
     }
 
     protected void UpdateTileGraphics()
@@ -325,11 +347,48 @@ public class Dungeon : MonoBehaviour {
                         rotation = kTileRotations[Random.Range(0, kTileRotations.Length)];
                     }
                     GameObject tileObj = Instantiate(tilePrefab, GetTilePosition(x, y), rotation) as GameObject;
-                    tileObj.transform.SetParent(kTileParent);
+                    tileObj.transform.SetParent(GetRenderGroup(x, y).transform);
                     mTileObjects.Add(tileObj);
                 }
             }
         }
+
+        foreach(var pair in mRenderGroups)
+        {
+            CombineMesh(pair.Value);
+        }
+
+        for (int i = mTileObjects.Count - 1; i >= 0; --i)
+        {
+            Destroy(mTileObjects[i]);
+        }
+        mTileObjects.Clear();
+    }
+
+    protected void CombineMesh(GameObject obj)
+    {
+        //Zero transformation is needed because of localToWorldMatrix transform
+        Vector3 position = obj.transform.position;
+        obj.transform.position = Vector3.zero;
+
+        //whatever man
+        MeshFilter[] meshFilters = obj.GetComponentsInChildren<MeshFilter>();
+        CombineInstance[] combine = new CombineInstance[meshFilters.Length];
+        int i = 0;
+        while (i < meshFilters.Length)
+        {
+            combine[i].mesh = meshFilters[i].sharedMesh;
+            combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
+            meshFilters[i].gameObject.SetActive(false);
+            i++;
+        }
+        MeshFilter mf = obj.GetComponent<MeshFilter>();
+        mf.mesh = new Mesh();
+        mf.mesh.CombineMeshes(combine, true, true);
+
+        //Reset position
+        obj.transform.position = position;
+        obj.SetActive(true);
     }
 
     protected GameObject GetRandomTilePrefab(GameObject[] prefabs)
