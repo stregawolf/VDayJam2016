@@ -159,6 +159,13 @@ public class BaseActor : MonoBehaviour {
         }
     }
 
+    public virtual void Revive()
+    {
+        mHp = mMaxHp;
+        gameObject.SetActive(true);
+        ResetColor();
+    }
+
     public void KnockBack(Vector3 vec)
     {
         /*

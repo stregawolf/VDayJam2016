@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.Collections;
 
@@ -8,7 +9,8 @@ public class GameManager : MonoBehaviour {
     protected static GameManager sInstance;
     public static GameManager Instance { get { return sInstance; } }
 
-    public GameObject mPlayerPrefab;
+    public GameObject mPlayerRosePrefab;
+    public GameObject mPlayerVuPrefab;
     public GameObject mGoalPrefab;
 
     public GameObject mCollectablePrefab;
@@ -57,7 +59,7 @@ public class GameManager : MonoBehaviour {
     {
         GameObject goalObj = SpawnPrefab(mGoalPrefab);
         mGoal = goalObj.GetComponent<Goal>();
-        GameObject playerObj = SpawnPrefab(mPlayerPrefab);
+        GameObject playerObj = SpawnPrefab(GlobalData.mSelectedCharacter == SelectedCharacter.Rose?mPlayerRosePrefab:mPlayerVuPrefab);
         mPlayer1 = playerObj.GetComponent<PlayerController>();
         mFollowCamera.Init(mPlayer1.transform);
 
@@ -177,6 +179,7 @@ public class GameManager : MonoBehaviour {
     public void RespawnPlayer1()
     {
         mPlayer1.mPlayer.TeleportTo(mStartPos);
+        mPlayer1.mPlayer.Revive();
     }
 
     public void OnLevelComplete()
@@ -200,6 +203,11 @@ public class GameManager : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.F1))
         {
             OnLevelComplete();
+        }
+
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene("Title");
         }
     }
 }
