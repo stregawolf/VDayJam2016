@@ -4,9 +4,10 @@ using System.Collections.Generic;
 
 public enum SignalType
 {
-    GameStart,
-    GameEnd,
-    LevelComplete,
+    GameStart, // game officially started
+    GameEnd, // game is over win state
+    LevelStart, // dungeon finished loading
+    LevelComplete, // player reached goal
     HeartAmountChanged,
 }
 

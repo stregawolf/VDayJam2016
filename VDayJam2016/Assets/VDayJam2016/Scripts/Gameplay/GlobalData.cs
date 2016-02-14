@@ -15,10 +15,13 @@ public static class GlobalData
         set { sNumHearts = value; Signal.Dispatch(SignalType.HeartAmountChanged); }
     }
 
+    public static int sCurrentFloor = 1;
+
     public static void ResetData()
     {
         sNumBankedHearts = 0;
         sNumHearts = 1;
+        sCurrentFloor = 1;
     }
 }
 

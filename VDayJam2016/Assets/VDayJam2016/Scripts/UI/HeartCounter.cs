@@ -4,7 +4,6 @@ using System.Collections;
 
 public class HeartCounter : MonoBehaviour {
     public Text mCountLabel;
-    private int mDisplayAmount = 0;
     
     private void Awake()
     {
@@ -24,7 +23,6 @@ public class HeartCounter : MonoBehaviour {
 
     public void SetDisplayAmount(int amount)
     {
-        mDisplayAmount = amount;
-        mCountLabel.text = mDisplayAmount.ToString();
+        mCountLabel.text = amount.ToString();
     }
 }

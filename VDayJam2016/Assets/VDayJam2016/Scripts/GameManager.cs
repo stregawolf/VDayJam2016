@@ -125,6 +125,8 @@ public class GameManager : MonoBehaviour {
         // Generate room contents
         GenerateCollectables();
         GenerateEnemies();
+
+        Signal.Dispatch(SignalType.LevelStart);
     }
 
     protected void GenerateEnemies()
