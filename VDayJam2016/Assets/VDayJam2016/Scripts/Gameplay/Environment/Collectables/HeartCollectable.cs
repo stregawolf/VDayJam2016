@@ -5,7 +5,7 @@ public class HeartCollectable : BaseCollectable {
 
     public override void OnCollect(GameObject collector)
     {
-        Signal.Dispatch(SignalType.HeartCollected);
+        GlobalData.NumHearts++;
         base.OnCollect(collector);
     }
 }

@@ -25,7 +25,7 @@ public class CharacterSelectScreen : MonoBehaviour {
                     mSelectedCharacter = character;
                     if(mSelectedCharacter != null)
                     {
-                        GlobalData.mSelectedCharacter = mSelectedCharacter.mCharacter;
+                        GlobalData.sSelectedCharacter = mSelectedCharacter.mCharacter;
                         mSelectedCharacter.Select();
                         mStartButton.SetActive(true);
                     }
@@ -41,6 +41,7 @@ public class CharacterSelectScreen : MonoBehaviour {
 
     public void OnStartPressed()
     {
+        GlobalData.ResetData();
         SceneManager.LoadScene("Game");
     }
 }

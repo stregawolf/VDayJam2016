@@ -25,7 +25,9 @@ public class GameManager : MonoBehaviour {
         public int mNumEnemies = 0;
         public GameObject[] mEnemyPrefabs;
     }
+    public bool mbUseTestGenerationData = true;
     public DungeonGenerationData mTestGenerationData;
+    protected DungeonGenerationData mCurrentLevelData;
 
     protected Goal mGoal;
     protected Vector3 mStartPos;
@@ -59,7 +61,7 @@ public class GameManager : MonoBehaviour {
     {
         GameObject goalObj = SpawnPrefab(mGoalPrefab);
         mGoal = goalObj.GetComponent<Goal>();
-        GameObject playerObj = SpawnPrefab(GlobalData.mSelectedCharacter == SelectedCharacter.Rose?mPlayerRosePrefab:mPlayerVuPrefab);
+        GameObject playerObj = SpawnPrefab(GlobalData.sSelectedCharacter == SelectedCharacter.Rose?mPlayerRosePrefab:mPlayerVuPrefab);
         mPlayer1 = playerObj.GetComponent<PlayerController>();
         mFollowCamera.Init(mPlayer1.transform);
 
@@ -104,6 +106,16 @@ public class GameManager : MonoBehaviour {
 
     public void GenerateLevel()
     {
+        if(mbUseTestGenerationData)
+        {
+            mCurrentLevelData = mTestGenerationData;
+        }
+
+        if(GlobalData.NumHearts <= 0)
+        {
+            GlobalData.NumHearts = 1;
+        }
+
         mDungeon.GenerateDungeon();
         mStartPos = mDungeon.GetTilePosition(mDungeon.kInitialRoomPosition.mX, mDungeon.kInitialRoomPosition.mY);
         RespawnPlayer1();
@@ -123,7 +135,7 @@ public class GameManager : MonoBehaviour {
         }
         mEnemies.Clear();
 
-        for (int i = 0; i < mTestGenerationData.mNumEnemies; ++i)
+        for (int i = 0; i < mCurrentLevelData.mNumEnemies; ++i)
         {
             int attempts = 0;
             do
@@ -134,7 +146,7 @@ public class GameManager : MonoBehaviour {
                 if (cell.mTileType == DungeonCell.TileType.Ground)
                 {
                     cell.mTileType = DungeonCell.TileType.Collectable;
-                    GameObject prefab = mTestGenerationData.mEnemyPrefabs[Random.Range(0, mTestGenerationData.mEnemyPrefabs.Length)];
+                    GameObject prefab = mCurrentLevelData.mEnemyPrefabs[Random.Range(0, mCurrentLevelData.mEnemyPrefabs.Length)];
                     GameObject enemyObj = SpawnPrefab(prefab, mDungeon.GetTilePosition(randPos.mX, randPos.mY), Quaternion.identity);
                     EnemyController enemy = enemyObj.GetComponent<EnemyController>();
                     enemy.Init();
@@ -155,7 +167,7 @@ public class GameManager : MonoBehaviour {
         }
         mCollectables.Clear();
 
-        for (int i = 0; i < mTestGenerationData.mNumCollectables; ++i)
+        for (int i = 0; i < mCurrentLevelData.mNumCollectables; ++i)
         {
             int attempts = 0;
             do
@@ -205,7 +217,12 @@ public class GameManager : MonoBehaviour {
             OnLevelComplete();
         }
 
-        if(Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.F2))
+        {
+            GlobalData.NumHearts += 25;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             SceneManager.LoadScene("Title");
         }

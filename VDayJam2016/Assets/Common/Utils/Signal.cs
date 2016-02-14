@@ -7,7 +7,7 @@ public enum SignalType
     GameStart,
     GameEnd,
     LevelComplete,
-    HeartCollected,
+    HeartAmountChanged,
 }
 
 public class Signal

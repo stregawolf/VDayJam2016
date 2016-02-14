@@ -11,7 +11,7 @@ public class BaseProjectile : MonoBehaviour {
 
     protected BaseActor mOwner;
     protected Vector3 mLastPos;
-    protected void Awake()
+    protected virtual void Awake()
     {
         if(mRigidbody == null)
         {
@@ -52,20 +52,29 @@ public class BaseProjectile : MonoBehaviour {
         mLastPos = mRigidbody.position;
     }
 
-    public virtual void Throw(BaseActor owner, Vector3 startPos, Vector3 dir, float speed)
+    public virtual void Throw(BaseActor owner, Vector3 startPos, Vector3 dir, float speed, bool addTorque = true)
     {
         mOwner = owner;
         mRigidbody.position = startPos;
-        mRigidbody.AddTorque(Random.onUnitSphere * 10.0f);
+        if(addTorque)
+        {
+            mRigidbody.AddTorque(Random.onUnitSphere * 10.0f);
+        }
         mRigidbody.AddForce(dir * speed, ForceMode.VelocityChange);
         if(owner != null && owner.mCollider != null && mCollider != null)
         {
             Physics.IgnoreCollision(owner.mCollider, mCollider);
         }
+
+        StartAutoDestruction();
+    }
+
+    protected virtual void StartAutoDestruction()
+    {
         Destroy(gameObject, mLifetime);
     }
 
-    public void OnCollisionEnter(Collision c)
+    public virtual void OnCollisionEnter(Collision c)
     {
         BaseActor hitActor = c.gameObject.GetComponentInParent<BaseActor>();
         if(hitActor != null && hitActor != mOwner)

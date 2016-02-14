@@ -7,6 +7,7 @@ public class BaseActor : MonoBehaviour {
     public int mMaxHp = 10;
     public float mMaxSpeed = 5.0f;
     public bool mbFaceMovementDirection = true;
+    public float mFlickerTime = 0.5f;
 
     public GameObject mModel;
 
@@ -68,6 +69,14 @@ public class BaseActor : MonoBehaviour {
         }
     }
 
+    public void SetRendererEnabled(bool enabled)
+    {
+        for (int i = 0, n = mRenderers.Length; i < n; ++i)
+        {
+            mRenderers[i].enabled = enabled;
+        }
+    }
+
     public void SetColor(Color c)
     {
         for (int i = 0, n = mRenderers.Length; i < n; ++i)
@@ -79,12 +88,18 @@ public class BaseActor : MonoBehaviour {
     public IEnumerator Flicker(System.Action onComplete = null)
     {
         mIsFlickering = true;
-        for (int i = 0; i < 10; ++i)
+        bool visible = true;
+        float flickerTimer = mFlickerTime;
+        while(flickerTimer > 0)
         {
-            SetColor(new Color(Random.value + 0.5f, Random.value + 0.5f, Random.value + 0.5f));
-            yield return new WaitForSeconds(.05f);
+            visible = !visible;
+            SetRendererEnabled(visible);
+            //SetColor(new Color(Random.value + 0.5f, Random.value + 0.5f, Random.value + 0.5f));
+            yield return new WaitForSeconds(0.05f);
+            flickerTimer -= 0.05f;
         }
 
+        SetRendererEnabled(true);
         ResetColor();
 
         mIsFlickering = false;
@@ -163,6 +178,7 @@ public class BaseActor : MonoBehaviour {
     {
         mHp = mMaxHp;
         gameObject.SetActive(true);
+        SetRendererEnabled(true);
         ResetColor();
     }
 
