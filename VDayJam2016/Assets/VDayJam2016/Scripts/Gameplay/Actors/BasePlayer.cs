@@ -21,9 +21,8 @@ public class BasePlayer : BaseActor {
     public GameObject mMeleeWeaponModel;
     public GameObject mRangedWeaponModel;
 
-    protected override void Awake()
+    protected void Start()
     {
-        base.Awake();
         SetEquipedWeaponType(mEquipedWeaponType);
     }
 
@@ -99,9 +98,11 @@ public class BasePlayer : BaseActor {
                 mMeleeWeaponModel.SetActive(true);
                 break;
             case EquipedWeaponType.Ranged:
-                mRangedWeaponModel.SetActive(true);
+                mRangedWeaponModel.SetActive(GlobalData.NumAmmo > 0);
                 break;
         }
+
+        Signal.Dispatch(SignalType.WeaponChanged);
     }
     
     public virtual void Attack()
@@ -125,38 +126,60 @@ public class BasePlayer : BaseActor {
         TriggerAnimation("WeaponSwing");
     }
 
-    public virtual void OnWeaponHit()
+    public virtual void OnWeaponSwingMidway()
     {
-        if(mEquipedWeaponType != EquipedWeaponType.Melee)
+        switch(mEquipedWeaponType)
         {
-            return;
-        }
-
-        Collider[] colliders = Physics.OverlapSphere(mModel.transform.position, mSwingRadius);
-        for (int i = 0, n = colliders.Length; i < n; ++i)
-        {
-            BaseEnemy enemy = colliders[i].GetComponentInParent<BaseEnemy>();
-            
-            if (enemy != null && enemy != this)
-            {
-                Vector3 dirToEnemy = enemy.transform.position - transform.position;
-                dirToEnemy.Normalize();
-                if(Vector3.Dot(transform.forward, dirToEnemy) > 0.0f)
+            case EquipedWeaponType.Melee:
+                Collider[] colliders = Physics.OverlapSphere(mModel.transform.position, mSwingRadius);
+                for (int i = 0, n = colliders.Length; i < n; ++i)
                 {
-                    enemy.KnockBack(dirToEnemy * mMeleeDamage / 2.0f);
-                    enemy.TakeDamage(mMeleeDamage);
+                    BaseEnemy enemy = colliders[i].GetComponentInParent<BaseEnemy>();
+
+                    if (enemy != null && enemy != this)
+                    {
+                        Vector3 dirToEnemy = enemy.transform.position - transform.position;
+                        dirToEnemy.Normalize();
+                        if (Vector3.Dot(transform.forward, dirToEnemy) > 0.0f)
+                        {
+                            enemy.KnockBack(dirToEnemy * mMeleeDamage / 2.0f);
+                            enemy.TakeDamage(mMeleeDamage);
+                        }
+                    }
                 }
-            }
+                break;
+            case EquipedWeaponType.Ranged:
+
+                Vector3 startPos = transform.position + transform.up * 0.5f + transform.forward * 0.5f;
+                GameObject projectileObj = GameManager.Instance.SpawnPrefab(mProjectilePrefab, startPos, Random.rotation);
+                BaseProjectile projectile = projectileObj.GetComponent<BaseProjectile>();
+                projectile.Throw(this, startPos, transform.forward, mThrowVelocity);
+
+                mRangedWeaponModel.SetActive(false);
+                break;
+        }
+    }
+
+    public virtual void OnWeaponSwingComplete()
+    {
+        switch (mEquipedWeaponType)
+        {
+            case EquipedWeaponType.Ranged:
+                mRangedWeaponModel.SetActive(GlobalData.NumAmmo > 0);
+                break;
         }
     }
 
     public void ThrowProjectile()
     {
+        if(GlobalData.NumAmmo <= 0)
+        {
+            return;
+        }
+
+        mRangedWeaponModel.SetActive(true);
         TriggerAnimation("WeaponSwing");
-        Vector3 startPos = transform.position + transform.up * 0.5f + transform.forward * 0.5f;
-        GameObject projectileObj = GameManager.Instance.SpawnPrefab(mProjectilePrefab, startPos, Random.rotation);
-        BaseProjectile projectile = projectileObj.GetComponent<BaseProjectile>();
-        projectile.Throw(this, startPos, transform.forward, mThrowVelocity);
+        GlobalData.NumAmmo--;
     }
 
     public void UseSupport()

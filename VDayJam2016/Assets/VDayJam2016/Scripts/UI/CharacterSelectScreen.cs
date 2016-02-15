@@ -5,6 +5,10 @@ using System.Collections;
 public class CharacterSelectScreen : MonoBehaviour {
 
     public GameObject mStartButton;
+
+    public GameObject mVuButton;
+    public GameObject mRoseButton;
+
     public GameObject mUnselectedImage;
     public GameObject mVuSelectedImage;
     public GameObject mRoseSelectedImage;
@@ -54,12 +58,18 @@ public class CharacterSelectScreen : MonoBehaviour {
         {
             case SelectedCharacter.None:
                 mUnselectedImage.SetActive(true);
+                mVuButton.transform.SetParent(mUnselectedImage.transform);
+                mRoseButton.transform.SetParent(mUnselectedImage.transform);
                 break;
             case SelectedCharacter.Rose:
                 mRoseSelectedImage.SetActive(true);
+                mVuButton.transform.SetParent(mRoseSelectedImage.transform);
+                mRoseButton.transform.SetParent(mRoseSelectedImage.transform);
                 break;
             case SelectedCharacter.Vu:
                 mVuSelectedImage.SetActive(true);
+                mVuButton.transform.SetParent(mVuSelectedImage.transform);
+                mRoseButton.transform.SetParent(mVuSelectedImage.transform);
                 break;
         }
     }

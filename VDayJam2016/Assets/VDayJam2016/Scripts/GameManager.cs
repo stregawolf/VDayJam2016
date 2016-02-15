@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour {
     protected Goal mGoal;
     protected Vector3 mStartPos;
     protected PlayerController mPlayer1;
+    public PlayerController Player1 { get { return mPlayer1; } }
 
     protected List<GameObject> mCollectables = new List<GameObject>();
     protected List<EnemyController> mEnemies = new List<EnemyController>();
@@ -51,16 +52,16 @@ public class GameManager : MonoBehaviour {
         {
             mFollowCamera = FindObjectOfType<FollowCamera>();
         }
+
+        GameObject goalObj = SpawnPrefab(mGoalPrefab);
+        mGoal = goalObj.GetComponent<Goal>();
+        GameObject playerObj = SpawnPrefab(GlobalData.sSelectedCharacter == SelectedCharacter.Rose ? mPlayerRosePrefab : mPlayerVuPrefab);
+        mPlayer1 = playerObj.GetComponent<PlayerController>();
+        mFollowCamera.Init(mPlayer1.transform);
     }
 
 	protected void Start () 
     {
-        GameObject goalObj = SpawnPrefab(mGoalPrefab);
-        mGoal = goalObj.GetComponent<Goal>();
-        GameObject playerObj = SpawnPrefab(GlobalData.sSelectedCharacter == SelectedCharacter.Rose?mPlayerRosePrefab:mPlayerVuPrefab);
-        mPlayer1 = playerObj.GetComponent<PlayerController>();
-        mFollowCamera.Init(mPlayer1.transform);
-
         GenerateLevel();
 
         Signal.Register(SignalType.LevelComplete, OnLevelComplete);
@@ -305,6 +306,11 @@ public class GameManager : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.F4))
         {
             GlobalData.NumHearts += 25;
+        }
+
+        if (Input.GetKeyDown(KeyCode.F5))
+        {
+            GlobalData.NumAmmo += 25;
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))

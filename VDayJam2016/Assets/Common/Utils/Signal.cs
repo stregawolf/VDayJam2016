@@ -10,6 +10,8 @@ public enum SignalType
     LevelComplete, // player reached goal
     StartNextLevel,
     HeartAmountChanged,
+    AmmoAmountChanged,
+    WeaponChanged,
 }
 
 public class Signal
