@@ -98,6 +98,30 @@ public class Dungeon : MonoBehaviour {
         UpdateTileGraphics();
     }
 
+    public void LoadDungeon(string data)
+    {
+        string[] rows = data.Split('\n');
+        string[] currRow = rows[0].Split(',');
+
+        int height = rows.Length;
+        int width = currRow.Length;
+        mGrid.Init(width, height);
+
+        int y = 0;
+        do
+        {
+            Debug.Log(rows[y]);
+            currRow = rows[y].Split(',');
+            for (int x = 0; x < width; ++x)
+            {
+                SetCell(x, height - y - 1, (DungeonCell.TileType)int.Parse(currRow[x]));
+            }
+            ++y;
+        } while (y < height);
+
+        UpdateTileGraphics();
+    }
+
     Dictionary<Vector2i, Vector2i> openWalls = new Dictionary<Vector2i, Vector2i>();
     public void GenerateRooms(int seed)
     {
@@ -331,10 +355,9 @@ public class Dungeon : MonoBehaviour {
     protected void UpdateTileGraphics()
     {
         ClearTileGraphics();
-
-        for (int y = 0; y < kHeight; ++y)
+        for (int y = 0; y < mGrid.Height; ++y)
         {
-            for (int x = 0; x < kWidth; ++x)
+            for (int x = 0; x < mGrid.Width; ++x)
             {
                 DungeonCell cell = mGrid.GetGridCell(x,y);
                 TileSet tileSet;

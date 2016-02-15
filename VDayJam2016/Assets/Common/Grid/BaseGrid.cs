@@ -3,7 +3,9 @@
 public class BaseGrid<T> where T: BaseGridCell, new()
 {
 	protected int mWidth;
+    public int Width { get { return mWidth; } }
 	protected int mHeight;
+    public int Height { get { return mHeight; } }
 
 	protected T[][] mGridCells;
 

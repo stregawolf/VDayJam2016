@@ -8,6 +8,7 @@ public enum SignalType
     GameEnd, // game is over win state
     LevelStart, // dungeon finished loading
     LevelComplete, // player reached goal
+    StartNextLevel,
     HeartAmountChanged,
 }
 

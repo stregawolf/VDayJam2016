@@ -29,6 +29,18 @@ public class GameManager : MonoBehaviour {
     public DungeonGenerationData mTestGenerationData;
     protected DungeonGenerationData mCurrentLevelData;
 
+    [System.Serializable]
+    public class LevelData
+    {
+        [Multiline]
+        public string mData;
+        public Vector2i mPlayerCell;
+        public Vector2i mGoalCell;
+        public SignalType mGoalSignalType = SignalType.StartNextLevel;
+    }
+
+    public LevelData mTestLevelData;
+
     protected Goal mGoal;
     protected Vector3 mStartPos;
     protected PlayerController mPlayer1;
@@ -68,6 +80,7 @@ public class GameManager : MonoBehaviour {
         GenerateLevel();
 
         Signal.Register(SignalType.LevelComplete, OnLevelComplete);
+        Signal.Register(SignalType.StartNextLevel, OnStartNextLevel);
 	}
 
     protected void OnDestroy()
@@ -75,6 +88,7 @@ public class GameManager : MonoBehaviour {
         if (sInstance == this)
         {
             Signal.Unregister(SignalType.LevelComplete, OnLevelComplete);
+            Signal.Unregister(SignalType.StartNextLevel, OnStartNextLevel);
             sInstance = null;
         }
     }
@@ -104,6 +118,24 @@ public class GameManager : MonoBehaviour {
         return mDungeon.GetTilePosition(randomPosInRoom.mX, randomPosInRoom.mY);
     }
 
+    public void LoadLevel(LevelData data)
+    {
+        LoadLevel(data.mData, data.mPlayerCell, data.mGoalCell, data.mGoalSignalType);
+    }
+
+    public void LoadLevel(string data, Vector2i playerStartCell, Vector2i goalCell, SignalType goalSignalType)
+    {
+        ClearCollectables();
+        ClearEnemies();
+
+        mDungeon.LoadDungeon(data);
+        mStartPos = mDungeon.GetTilePosition(playerStartCell.mX, playerStartCell.mY);
+        RespawnPlayer1();
+        mGoal.mSignalType = goalSignalType;
+        mGoal.transform.position = mDungeon.GetTilePosition(goalCell.mX, goalCell.mY);
+        mDungeon.SetCell(goalCell.mX, goalCell.mY, DungeonCell.TileType.Goal);
+    }
+
     public void GenerateLevel()
     {
         if(mbUseTestGenerationData)
@@ -119,6 +151,7 @@ public class GameManager : MonoBehaviour {
         mDungeon.GenerateDungeon();
         mStartPos = mDungeon.GetTilePosition(mDungeon.kInitialRoomPosition.mX, mDungeon.kInitialRoomPosition.mY);
         RespawnPlayer1();
+        mGoal.mSignalType = SignalType.LevelComplete;
         mGoal.transform.position = FindGoalSpawnPosition();
         mDungeon.SetCell(mGoal.transform.position, DungeonCell.TileType.Goal);
 
@@ -129,13 +162,18 @@ public class GameManager : MonoBehaviour {
         Signal.Dispatch(SignalType.LevelStart);
     }
 
-    protected void GenerateEnemies()
+    protected void ClearEnemies()
     {
         for (int i = 0, n = mEnemies.Count; i < n; ++i)
         {
             Destroy(mEnemies[i].gameObject);
         }
         mEnemies.Clear();
+    }
+
+    protected void GenerateEnemies()
+    {
+        ClearEnemies();
 
         for (int i = 0; i < mCurrentLevelData.mNumEnemies; ++i)
         {
@@ -161,13 +199,18 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    protected void GenerateCollectables()
+    protected void ClearCollectables()
     {
         for (int i = 0, n = mCollectables.Count; i < n; ++i)
         {
             Destroy(mCollectables[i]);
         }
         mCollectables.Clear();
+    }
+
+    protected void GenerateCollectables()
+    {
+        ClearCollectables();
 
         for (int i = 0; i < mCurrentLevelData.mNumCollectables; ++i)
         {
@@ -198,6 +241,12 @@ public class GameManager : MonoBehaviour {
 
     public void OnLevelComplete()
     {
+        LoadLevel(mTestLevelData);
+    }
+
+    public void OnStartNextLevel()
+    {
+        GlobalData.sCurrentFloor++;
         GenerateLevel();
     }
 
