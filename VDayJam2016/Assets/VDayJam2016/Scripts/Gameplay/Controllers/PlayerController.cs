@@ -5,6 +5,15 @@ public class PlayerController : MonoBehaviour {
     public BasePlayer mPlayer;
     protected Plane mGroundPlane;
 
+    public enum QueuedActionType
+    {
+        None,
+        ChangeToMelee,
+        ChangeToRange,
+    }
+
+    protected QueuedActionType mQueuedAction = QueuedActionType.None;
+
     protected void Awake()
     {
         if(mPlayer == null)
@@ -31,20 +40,45 @@ public class PlayerController : MonoBehaviour {
 
         if(Input.GetKeyDown(KeyCode.Alpha1))
         {
-            mPlayer.SetEquipedWeaponType(BasePlayer.EquipedWeaponType.Melee);
+            mQueuedAction = QueuedActionType.ChangeToMelee;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            mPlayer.SetEquipedWeaponType(BasePlayer.EquipedWeaponType.Ranged);
+            mQueuedAction = QueuedActionType.ChangeToRange;
         }
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        else if(Input.GetAxis("Mouse ScrollWheel") != 0)
         {
-            mPlayer.SetEquipedWeaponType(BasePlayer.EquipedWeaponType.Support);
+            if(mPlayer.mEquipedWeaponType == BasePlayer.EquipedWeaponType.Melee)
+            {
+                mQueuedAction = QueuedActionType.ChangeToRange;
+            }
+            else
+            {
+                mQueuedAction = QueuedActionType.ChangeToMelee;
+            }
         }
+        
 
         if (Input.GetMouseButtonDown(0))
         {
             mPlayer.Attack();
         }
+
+        if(mPlayer.IsPlayingAnimation())
+        {
+            return;
+        }
+
+        switch(mQueuedAction)
+        {
+            case QueuedActionType.ChangeToMelee:
+                mPlayer.SetEquipedWeaponType(BasePlayer.EquipedWeaponType.Melee);
+                break;
+            case QueuedActionType.ChangeToRange:
+                mPlayer.SetEquipedWeaponType(BasePlayer.EquipedWeaponType.Ranged);
+                break;
+        }
+
+        mQueuedAction = QueuedActionType.None;
     }
 }
