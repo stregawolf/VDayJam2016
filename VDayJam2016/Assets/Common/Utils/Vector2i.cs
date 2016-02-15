@@ -1,6 +1,8 @@
 ﻿[System.Serializable]
 public class Vector2i
 {
+    public static Vector2i kZero { get { return new Vector2i(0, 0); } }
+    public static Vector2i kOne { get { return new Vector2i(1, 1); } }
     public static Vector2i kUp { get { return new Vector2i(0, 1); } }
     public static Vector2i kDown { get { return new Vector2i(0, -1); } }
     public static Vector2i kLeft { get { return new Vector2i(-1, 0); } }

@@ -5,21 +5,26 @@ using System.Linq;
 public class Dungeon : MonoBehaviour {
     public static readonly Quaternion[] kTileRotations = { Quaternion.identity, Quaternion.Euler(0, 90, 0), Quaternion.Euler(0, 180, 0), Quaternion.Euler(0, 270, 0) };
 
-    public int kSeed = 0;
+    public DungeonEnvironmentGenerationData mEnvironmentGenerationData;
 
-    public int kWidth = 10;
-    public int kHeight = 10;
+    public int mSeed = 0;
+    protected Vector2i mInitialRoomPosition = Vector2i.kZero;
+    public Vector2i InitialRoomPosition { get { return mInitialRoomPosition; } }
+    protected Vector2i mInitialRoomSize = Vector2i.kZero;
+    public Vector2i InitialRoomSize { get { return mInitialRoomSize; } }
 
-    public int kMinRoomWidth = 3;
-    public int kMaxRoomWidth = 3;
-    public int kMinRoomHeight = 10;
-    public int kMaxRoomHeight = 10;
+    public int mMaxGenerationAttempts = 100;
 
-    public int kMaxCorridorLength = 4;
+    public Transform mTileParent = null;
+    
+    protected BaseGrid<DungeonCell> mGrid = new BaseGrid<DungeonCell>();
+    protected List<GameObject> mTileObjects = new List<GameObject>();
+    protected List<Room> mRooms = new List<Room>();
+    public List<Room> Rooms { get { return mRooms; } }
 
-    public int kMaxGenerationAttempts = 100;
-
-    public Transform kTileParent = null;
+    public bool mGenerateOnAwake = false;
+    public int kRenderGroupSize = 10;
+    protected Dictionary<Vector2i, GameObject> mRenderGroups = new Dictionary<Vector2i, GameObject>();
 
     [System.Serializable]
     public class TileSet
@@ -28,46 +33,28 @@ public class Dungeon : MonoBehaviour {
         public bool mAllowRandomOrientation = true;
         public GameObject[] mPrefabs;
     }
-    public TileSet[] kTilePrefabs;
-    protected Dictionary<DungeonCell.TileType, TileSet> mTileMapping = new Dictionary<DungeonCell.TileType, TileSet>();
-
-    public bool kRandomizeInitialRoomPosition = true;
-    public Vector2i kInitialRoomPosition;
-    public Vector2i kInitialRoomSize;
-
-    protected BaseGrid<DungeonCell> mGrid = null;
-    protected List<GameObject> mTileObjects = new List<GameObject>();
-    protected List<Room> mRooms = new List<Room>();
-    public List<Room> Rooms { get { return mRooms; } }
-
-    public bool mGenerateOnAwake = false;
-
-    public Material mDungeonMaterial;
-    public int kRenderGroupSize = 10;
-    protected Dictionary<Vector2i, GameObject> mRenderGroups = new Dictionary<Vector2i, GameObject>();
+    public Material kDungeonMaterial;
+    public Dungeon.TileSet[] kTilePrefabs;
+    protected Dictionary<DungeonCell.TileType, TileSet> kTileMapping = new Dictionary<DungeonCell.TileType, TileSet>();
 
     protected void Awake()
     {
-        if (kTileParent == null)
+        if (mTileParent == null)
         {
-            kTileParent = transform;
+            mTileParent = transform;
         }
 
-        if (kMaxRoomWidth > kWidth - 2) kMaxRoomWidth = kWidth - 2;
-        if (kMaxRoomHeight > kHeight - 2) kMaxRoomHeight = kHeight - 2;
-
-        mGrid = new BaseGrid<DungeonCell>();
+        for (int i = 0, n = kTilePrefabs.Length; i < n; ++i)
+        {
+            kTileMapping.Add(kTilePrefabs[i].mType, kTilePrefabs[i]);
+        }
 
         if (mGenerateOnAwake)
         {
-            GenerateDungeon();
-        }
-
-        for(int i = 0, n = kTilePrefabs.Length; i < n; ++i)
-        {
-            mTileMapping.Add(kTilePrefabs[i].mType, kTilePrefabs[i]);
+            GenerateDungeon(mEnvironmentGenerationData);
         }
     }
+
     /* TESTING
     protected void Update()
     {
@@ -91,10 +78,10 @@ public class Dungeon : MonoBehaviour {
     }
      */
 
-    public void GenerateDungeon()
+    public void GenerateDungeon(DungeonEnvironmentGenerationData data)
     {
-        mGrid.Init(kWidth, kHeight);
-        GenerateRooms(Random.seed);
+        mGrid.Init(data.mTotalDimensions.mX, data.mTotalDimensions.mY);
+        GenerateRooms(data);
         UpdateTileGraphics();
     }
 
@@ -123,43 +110,54 @@ public class Dungeon : MonoBehaviour {
     }
 
     Dictionary<Vector2i, Vector2i> openWalls = new Dictionary<Vector2i, Vector2i>();
-    public void GenerateRooms(int seed)
+    public void GenerateRooms(DungeonEnvironmentGenerationData data)
     {
         mRooms.Clear();
-
-        kSeed = seed;
-        Random.seed = seed;
+        
+        if(data.mUseSeed)
+        {
+            mSeed = data.mSeed;
+        }
+        else
+        {
+            mSeed = Random.seed;
+        }
+        Random.seed = mSeed;
         openWalls.Clear();
 
-        if (kRandomizeInitialRoomPosition)
+        if (data.mRandomizeInitialRoomPosition)
         {
-            int halfInitialRoomWidth = kInitialRoomSize.mX/2;
-            int halfInitialRoomHeight = kInitialRoomSize.mY/2;
-            kInitialRoomPosition.mX = Random.Range(halfInitialRoomWidth+1, kWidth - halfInitialRoomWidth-1);
-            kInitialRoomPosition.mY = Random.Range(halfInitialRoomHeight+1, kHeight - halfInitialRoomHeight-1);
+            int halfInitialRoomWidth = data.mInitialRoomSize.mX/2;
+            int halfInitialRoomHeight = data.mInitialRoomSize.mY/2;
+            mInitialRoomPosition.mX = Random.Range(halfInitialRoomWidth+1, data.mTotalDimensions.mX - halfInitialRoomWidth-1);
+            mInitialRoomPosition.mY = Random.Range(halfInitialRoomHeight+1, data.mTotalDimensions.mY - halfInitialRoomHeight-1);
+        }
+        else
+        {
+            mInitialRoomPosition = data.mInitialRoomPosition;
         }
         Room initialRoom = new Room();
-        initialRoom.InitCenterSize(kInitialRoomPosition.mX, kInitialRoomPosition.mY, kInitialRoomSize.mX, kInitialRoomSize.mY);
+        initialRoom.InitCenterSize(mInitialRoomPosition.mX, mInitialRoomPosition.mY, data.mInitialRoomSize.mX, data.mInitialRoomSize.mY);
 
         PlaceRoom(initialRoom);
         GetWalls(initialRoom, openWalls);
 
         int attempts = 0;
-        while (attempts < kMaxGenerationAttempts && openWalls.Count > 0)
+        while (attempts < mMaxGenerationAttempts && openWalls.Count > 0)
         {
-            IncrementGeneration(openWalls);
+            IncrementGeneration(data, openWalls);
             ++attempts;
         }
     }
 
-    protected void IncrementGeneration(Dictionary<Vector2i, Vector2i> wallDirMapping = null)
+    protected void IncrementGeneration(DungeonEnvironmentGenerationData data, Dictionary<Vector2i, Vector2i> wallDirMapping = null)
     {
         Vector2i[] keys = wallDirMapping.Keys.ToArray();
 
         // make a corridor
         Vector2i corridorStart = keys[Random.Range(0, keys.Length - 1)];
         Vector2i dir = wallDirMapping[corridorStart];
-        Vector2i corridorEnd = corridorStart + dir * Random.Range(0, kMaxCorridorLength);
+        Vector2i corridorEnd = corridorStart + dir * Random.Range(0, data.mMaxCorridorLength);
         Room corridor = new Room();
         corridor.InitMinMax(corridorStart, corridorEnd);
 
@@ -171,9 +169,9 @@ public class Dungeon : MonoBehaviour {
             GetWalls(corridor, wallDirMapping);
 
             // make a room to the end of it
-            int roomWidth = Random.Range(kMinRoomWidth, kMaxRoomWidth);
+            int roomWidth = Random.Range(data.mMinRoomDimensions.mX, data.mMaxRoomDimensions.mX);
             int halfRoomWidth = roomWidth / 2;
-            int roomHeight = Random.Range(kMinRoomHeight, kMaxRoomHeight);
+            int roomHeight = Random.Range(data.mMinRoomDimensions.mY, data.mMaxRoomDimensions.mY);
             int halfRoomHeight = roomHeight / 2;
             Room room = new Room();
             room.InitCenterSize(corridorEnd.mX, corridorEnd.mY, roomWidth, roomHeight);
@@ -214,7 +212,7 @@ public class Dungeon : MonoBehaviour {
         {
             for (int x = room.mMin.mX; x <= room.mMax.mX; ++x)
             {
-                if (x == 0 || x == kWidth - 1 || y == 0 || y == kHeight - 1)
+                if (x == 0 || x == mGrid.Width - 1 || y == 0 || y == mGrid.Height - 1)
                 {
                     return false;
                 }
@@ -343,10 +341,10 @@ public class Dungeon : MonoBehaviour {
         {
             renderGroup = new GameObject(string.Format("RenderGroup-{0}", renderGroupKey));
             renderGroup.transform.position = transform.position;
-            renderGroup.transform.SetParent(kTileParent);
+            renderGroup.transform.SetParent(mTileParent);
             renderGroup.AddComponent<MeshFilter>();
             MeshRenderer meshRenderer = renderGroup.AddComponent<MeshRenderer>();
-            meshRenderer.material = mDungeonMaterial;
+            meshRenderer.material = kDungeonMaterial;
             mRenderGroups.Add(renderGroupKey, renderGroup);
         }
         return renderGroup;
@@ -361,7 +359,7 @@ public class Dungeon : MonoBehaviour {
             {
                 DungeonCell cell = mGrid.GetGridCell(x,y);
                 TileSet tileSet;
-                if(mTileMapping.TryGetValue(cell.mTileType, out tileSet))
+                if(kTileMapping.TryGetValue(cell.mTileType, out tileSet))
                 {
                     GameObject tilePrefab = GetRandomTilePrefab(tileSet.mPrefabs);
                     Quaternion rotation = Quaternion.identity;

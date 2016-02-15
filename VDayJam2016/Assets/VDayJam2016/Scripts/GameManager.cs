@@ -17,27 +17,10 @@ public class GameManager : MonoBehaviour {
 
     public Dungeon mDungeon;
     public FollowCamera mFollowCamera;
-
-    [System.Serializable]
-    public class DungeonGenerationData
-    {
-        public int mNumCollectables = 0;
-        public int mNumEnemies = 0;
-        public GameObject[] mEnemyPrefabs;
-    }
+    
     public bool mbUseTestGenerationData = true;
     public DungeonGenerationData mTestGenerationData;
     protected DungeonGenerationData mCurrentLevelData;
-
-    [System.Serializable]
-    public class LevelData
-    {
-        [Multiline]
-        public string mData;
-        public Vector2i mPlayerCell;
-        public Vector2i mGoalCell;
-        public SignalType mGoalSignalType = SignalType.StartNextLevel;
-    }
 
     public LevelData mTestLevelData;
 
@@ -148,8 +131,8 @@ public class GameManager : MonoBehaviour {
             GlobalData.NumHearts = 1;
         }
 
-        mDungeon.GenerateDungeon();
-        mStartPos = mDungeon.GetTilePosition(mDungeon.kInitialRoomPosition.mX, mDungeon.kInitialRoomPosition.mY);
+        mDungeon.GenerateDungeon(mCurrentLevelData.mEnvironmentData);
+        mStartPos = mDungeon.GetTilePosition(mDungeon.InitialRoomPosition.mX, mDungeon.InitialRoomPosition.mY);
         RespawnPlayer1();
         mGoal.mSignalType = SignalType.LevelComplete;
         mGoal.transform.position = FindGoalSpawnPosition();
@@ -265,7 +248,7 @@ public class GameManager : MonoBehaviour {
         mFollowCamera.UpdatePosition();
         if (Input.GetKeyDown(KeyCode.F1))
         {
-            OnLevelComplete();
+            GenerateLevel();
         }
 
         if (Input.GetKeyDown(KeyCode.F2))
