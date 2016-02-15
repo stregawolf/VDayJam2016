@@ -13,12 +13,21 @@ public class CharacterSelectScreen : MonoBehaviour {
     public GameObject mVuSelectedImage;
     public GameObject mRoseSelectedImage;
 
+    public Fader mFader;
+
     private CharacterSelector mSelectedCharacter = null;
+
 
     private void Awake()
     {
         GlobalData.sSelectedCharacter = SelectedCharacter.None;
         UpdateDisplay();
+
+        if (mFader == null)
+        {
+            mFader = FindObjectOfType<Fader>();
+        }
+        mFader.FadeIn();
     }
 
     private void Update()
@@ -76,13 +85,13 @@ public class CharacterSelectScreen : MonoBehaviour {
 
     public void OnBackPressed()
     {
-        SceneManager.LoadScene("Title");
+        mFader.FadeOut(() => SceneManager.LoadScene("Title"));
     }
 
     public void OnStartPressed()
     {
         GlobalData.ResetData();
-        SceneManager.LoadScene("Game");
+        mFader.FadeOut(() => SceneManager.LoadScene("Game"));
     }
 
     public void OnVuPressed()

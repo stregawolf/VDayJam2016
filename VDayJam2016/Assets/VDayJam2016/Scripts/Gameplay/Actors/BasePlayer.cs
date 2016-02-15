@@ -86,6 +86,12 @@ public class BasePlayer : BaseActor {
         }
     }
 
+    public override void OnDeath()
+    {
+        base.OnDeath();
+        Signal.Dispatch(SignalType.PlayerDeath);
+    }
+
     public virtual void SetEquipedWeaponType(EquipedWeaponType weaponType)
     {
         mEquipedWeaponType = weaponType;

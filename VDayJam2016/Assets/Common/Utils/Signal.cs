@@ -9,9 +9,11 @@ public enum SignalType
     LevelStart, // dungeon finished loading
     LevelComplete, // player reached goal
     StartNextLevel,
+    RestartLevel,
     HeartAmountChanged,
     AmmoAmountChanged,
     WeaponChanged,
+    PlayerDeath,
 }
 
 public class Signal

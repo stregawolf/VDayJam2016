@@ -17,12 +17,14 @@ public class GameManager : MonoBehaviour {
 
     public Dungeon mDungeon;
     public FollowCamera mFollowCamera;
+    public Fader mFader;
     
     public bool mbUseTestGenerationData = true;
     public DungeonGenerationData mTestGenerationData;
     protected DungeonGenerationData mCurrentLevelData;
 
-    public LevelData mTestLevelData;
+    public LevelData mShopLevelData;
+    public LevelData mReviveZoneLevelData;
 
     protected Goal mGoal;
     protected Vector3 mStartPos;
@@ -53,6 +55,11 @@ public class GameManager : MonoBehaviour {
             mFollowCamera = FindObjectOfType<FollowCamera>();
         }
 
+        if(mFader == null)
+        {
+            mFader = FindObjectOfType<Fader>();
+        }
+
         GameObject goalObj = SpawnPrefab(mGoalPrefab);
         mGoal = goalObj.GetComponent<Goal>();
         GameObject playerObj = SpawnPrefab(GlobalData.sSelectedCharacter == SelectedCharacter.Rose ? mPlayerRosePrefab : mPlayerVuPrefab);
@@ -63,9 +70,12 @@ public class GameManager : MonoBehaviour {
 	protected void Start () 
     {
         GenerateLevel();
+        mFader.FadeIn();
 
         Signal.Register(SignalType.LevelComplete, OnLevelComplete);
         Signal.Register(SignalType.StartNextLevel, OnStartNextLevel);
+        Signal.Register(SignalType.RestartLevel, OnRestartLevel);
+        Signal.Register(SignalType.PlayerDeath, OnPlayerDeath);
 	}
 
     protected void OnDestroy()
@@ -74,6 +84,8 @@ public class GameManager : MonoBehaviour {
         {
             Signal.Unregister(SignalType.LevelComplete, OnLevelComplete);
             Signal.Unregister(SignalType.StartNextLevel, OnStartNextLevel);
+            Signal.Unregister(SignalType.RestartLevel, OnRestartLevel);
+            Signal.Unregister(SignalType.PlayerDeath, OnPlayerDeath);
             sInstance = null;
         }
     }
@@ -268,13 +280,53 @@ public class GameManager : MonoBehaviour {
 
     public void OnLevelComplete()
     {
-        LoadLevel(mTestLevelData);
+        Time.timeScale = 0.0f;
+        mFader.FadeOut(() =>
+        {
+            LoadLevel(mShopLevelData);
+            Time.timeScale = 1.0f;
+            mFader.FadeIn();
+        });
+    }
+
+    public void OnPlayerDeath()
+    {
+        mFader.FadeOut(() =>
+        {
+            GlobalData.NumHearts = 1;
+            GlobalData.NumAmmo = GlobalData.MaxAmmo;
+            LoadLevel(mReviveZoneLevelData);
+            Time.timeScale = 1.0f;
+            mFader.FadeIn();
+        });
     }
 
     public void OnStartNextLevel()
     {
-        GlobalData.sCurrentFloor++;
-        GenerateLevel();
+        Time.timeScale = 0.0f;
+        mFader.FadeOut(() =>
+        {
+            GlobalData.sCurrentFloor++;
+            GenerateLevel();
+            Time.timeScale = 1.0f;
+            mFader.FadeIn();
+        });
+    }
+
+    public void OnRestartLevel()
+    {
+        Time.timeScale = 0.0f;
+        mFader.FadeOut(() =>
+        {
+            GenerateLevel();
+            Time.timeScale = 1.0f;
+            mFader.FadeIn();
+        });
+    }
+
+    public void QuitToTitle()
+    {
+        mFader.FadeOut(() => SceneManager.LoadScene("Title"));
     }
 
     protected void Update()
@@ -293,6 +345,7 @@ public class GameManager : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.F1))
         {
             GenerateLevel();
+            mFader.FadeIn();
         }
         if (Input.GetKeyDown(KeyCode.F2))
         {
@@ -315,7 +368,7 @@ public class GameManager : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            SceneManager.LoadScene("Title");
+            QuitToTitle();
         }
     }
 }
