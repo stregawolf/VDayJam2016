@@ -5,7 +5,17 @@ using System.Collections;
 public class CharacterSelectScreen : MonoBehaviour {
 
     public GameObject mStartButton;
+    public GameObject mUnselectedImage;
+    public GameObject mVuSelectedImage;
+    public GameObject mRoseSelectedImage;
+
     private CharacterSelector mSelectedCharacter = null;
+
+    private void Awake()
+    {
+        GlobalData.sSelectedCharacter = SelectedCharacter.None;
+        UpdateDisplay();
+    }
 
     private void Update()
     {
@@ -27,10 +37,30 @@ public class CharacterSelectScreen : MonoBehaviour {
                     {
                         GlobalData.sSelectedCharacter = mSelectedCharacter.mCharacter;
                         mSelectedCharacter.Select();
+                        UpdateDisplay();
                         mStartButton.SetActive(true);
                     }
                 }
             }
+        }
+    }
+
+    public void UpdateDisplay()
+    {
+        mUnselectedImage.SetActive(false);
+        mVuSelectedImage.SetActive(false);
+        mRoseSelectedImage.SetActive(false);
+        switch(GlobalData.sSelectedCharacter)
+        {
+            case SelectedCharacter.None:
+                mUnselectedImage.SetActive(true);
+                break;
+            case SelectedCharacter.Rose:
+                mRoseSelectedImage.SetActive(true);
+                break;
+            case SelectedCharacter.Vu:
+                mVuSelectedImage.SetActive(true);
+                break;
         }
     }
 
@@ -43,5 +73,19 @@ public class CharacterSelectScreen : MonoBehaviour {
     {
         GlobalData.ResetData();
         SceneManager.LoadScene("Game");
+    }
+
+    public void OnVuPressed()
+    {
+        GlobalData.sSelectedCharacter = SelectedCharacter.Vu;
+        UpdateDisplay();
+        mStartButton.SetActive(true);
+    }
+
+    public void OnRosePressed()
+    {
+        GlobalData.sSelectedCharacter = SelectedCharacter.Rose;
+        UpdateDisplay();
+        mStartButton.SetActive(true);
     }
 }
