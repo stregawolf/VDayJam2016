@@ -5,14 +5,6 @@ public class PlayerController : MonoBehaviour {
     public BasePlayer mPlayer;
     protected Plane mGroundPlane;
 
-    public enum EquipedWeaponType
-    {
-        Melee,
-        Ranged,
-        Support,
-    }
-    protected EquipedWeaponType mEquipedWeaponType = EquipedWeaponType.Melee;
-
     protected void Awake()
     {
         if(mPlayer == null)
@@ -39,31 +31,20 @@ public class PlayerController : MonoBehaviour {
 
         if(Input.GetKeyDown(KeyCode.Alpha1))
         {
-            mEquipedWeaponType = EquipedWeaponType.Melee;
+            mPlayer.SetEquipedWeaponType(BasePlayer.EquipedWeaponType.Melee);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            mEquipedWeaponType = EquipedWeaponType.Ranged;
+            mPlayer.SetEquipedWeaponType(BasePlayer.EquipedWeaponType.Ranged);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            mEquipedWeaponType = EquipedWeaponType.Support;
+            mPlayer.SetEquipedWeaponType(BasePlayer.EquipedWeaponType.Support);
         }
 
-            if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0))
         {
-            switch(mEquipedWeaponType)
-            {
-                case EquipedWeaponType.Melee:
-                    mPlayer.SwingWeapon();
-                    break;
-                case EquipedWeaponType.Ranged:
-                    mPlayer.ThrowProjectile();
-                    break;
-                case EquipedWeaponType.Support:
-                    mPlayer.UseSupport();
-                    break;
-            }
+            mPlayer.Attack();
         }
     }
 }

@@ -11,6 +11,13 @@ public class BaseGrid<T> where T: BaseGridCell, new()
 
     protected HashSet<IGridObserver<T>> mGridObservers;
 
+    protected readonly T kOutOfBoundsCell;
+
+    public BaseGrid()
+    {
+        kOutOfBoundsCell = new T();
+    }
+
 	public virtual void Init(int width, int height)
 	{
 		mWidth = width;
@@ -34,7 +41,7 @@ public class BaseGrid<T> where T: BaseGridCell, new()
 	{
 		if(mGridCells == null || x < 0 || x >= mWidth || y < 0 || y >= mHeight)
 		{
-			return null;
+			return kOutOfBoundsCell;
 		}
 		return mGridCells[y][x];
 	}
