@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 [CreateAssetMenu(fileName = "LevelData", menuName = "Data/LevelData")]
 public class LevelData : ScriptableObject
@@ -9,4 +9,21 @@ public class LevelData : ScriptableObject
     public Vector2i mPlayerCell;
     public Vector2i mGoalCell;
     public SignalType mGoalSignalType = SignalType.StartNextLevel;
+
+    [System.Serializable]
+    public class SpawnData
+    {
+        public Vector2i mCell;
+        public float mYRotation = 0;
+
+        public enum SpawnType
+        {
+            Special,
+            Collectable,
+            Enemy,
+        }
+        public SpawnType mSpawnType = SpawnType.Special;
+        public GameObject mPrefab;
+    }
+    public SpawnData[] mSpawnDatas;
 }

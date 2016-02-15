@@ -30,6 +30,7 @@ public class GameManager : MonoBehaviour {
 
     protected List<GameObject> mCollectables = new List<GameObject>();
     protected List<EnemyController> mEnemies = new List<EnemyController>();
+    protected List<GameObject> mSpecialObjects = new List<GameObject>();
 
     protected void Awake()
     {
@@ -103,11 +104,12 @@ public class GameManager : MonoBehaviour {
 
     public void LoadLevel(LevelData data)
     {
-        LoadLevel(data.mData, data.mPlayerCell, data.mGoalCell, data.mGoalSignalType);
+        LoadLevel(data.mData, data.mPlayerCell, data.mGoalCell, data.mGoalSignalType, data.mSpawnDatas);
     }
 
-    public void LoadLevel(string data, Vector2i playerStartCell, Vector2i goalCell, SignalType goalSignalType)
+    public void LoadLevel(string data, Vector2i playerStartCell, Vector2i goalCell, SignalType goalSignalType, LevelData.SpawnData[] spawnDatas = null)
     {
+        ClearSpecialObjects();
         ClearCollectables();
         ClearEnemies();
 
@@ -117,6 +119,36 @@ public class GameManager : MonoBehaviour {
         mGoal.mSignalType = goalSignalType;
         mGoal.transform.position = mDungeon.GetTilePosition(goalCell.mX, goalCell.mY);
         mDungeon.SetCell(goalCell.mX, goalCell.mY, DungeonCell.TileType.Goal);
+        
+        if(spawnDatas != null)
+        {
+            for (int i = 0, n = spawnDatas.Length; i < n; ++i)
+            {
+                LevelData.SpawnData spawnData = spawnDatas[i];
+                GameObject obj = SpawnPrefab(spawnData.mPrefab, mDungeon.GetTilePosition(spawnData.mCell.mX, spawnData.mCell.mY), Quaternion.Euler(0.0f, spawnData.mYRotation, 0.0f));
+                switch(spawnData.mSpawnType)
+                {
+                    case LevelData.SpawnData.SpawnType.Special:
+                        mSpecialObjects.Add(obj);
+                        break;
+                    case LevelData.SpawnData.SpawnType.Collectable:
+                        mCollectables.Add(obj);
+                        break;
+                    case LevelData.SpawnData.SpawnType.Enemy:
+                        EnemyController enemy = obj.GetComponent<EnemyController>();
+                        if(enemy != null)
+                        {
+                            enemy.Init();
+                            mEnemies.Add(enemy);
+                        }
+                        else
+                        {
+                            mSpecialObjects.Add(obj);
+                        }
+                        break;
+                }
+            }
+        }
     }
 
     public void GenerateLevel()
@@ -131,6 +163,8 @@ public class GameManager : MonoBehaviour {
             GlobalData.NumHearts = 1;
         }
 
+        ClearSpecialObjects();
+
         mDungeon.GenerateDungeon(mCurrentLevelData.mEnvironmentData);
         mStartPos = mDungeon.GetTilePosition(mDungeon.InitialRoomPosition.mX, mDungeon.InitialRoomPosition.mY);
         RespawnPlayer1();
@@ -143,6 +177,15 @@ public class GameManager : MonoBehaviour {
         GenerateEnemies();
 
         Signal.Dispatch(SignalType.LevelStart);
+    }
+
+    protected void ClearSpecialObjects()
+    {
+        for (int i = 0, n = mSpecialObjects.Count; i < n; ++i)
+        {
+            Destroy(mSpecialObjects[i]);
+        }
+        mSpecialObjects.Clear();
     }
 
     protected void ClearEnemies()
@@ -250,8 +293,16 @@ public class GameManager : MonoBehaviour {
         {
             GenerateLevel();
         }
-
         if (Input.GetKeyDown(KeyCode.F2))
+        {
+            OnLevelComplete();
+        }
+        if (Input.GetKeyDown(KeyCode.F3))
+        {
+            OnStartNextLevel();
+        }
+
+        if (Input.GetKeyDown(KeyCode.F4))
         {
             GlobalData.NumHearts += 25;
         }
