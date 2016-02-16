@@ -30,6 +30,8 @@ public static class GlobalData
         set { sMaxAmmo = value; Signal.Dispatch(SignalType.AmmoAmountChanged); }
     }
 
+    public static bool sbHasTranslator = false;
+
     public static void ResetData()
     {
         sNumBankedHearts = 0;
@@ -37,6 +39,8 @@ public static class GlobalData
         sCurrentFloor = 1;
         sNumAmmo = 10;
         sMaxAmmo = 10;
+
+        sbHasTranslator = false;
     }
 }
 

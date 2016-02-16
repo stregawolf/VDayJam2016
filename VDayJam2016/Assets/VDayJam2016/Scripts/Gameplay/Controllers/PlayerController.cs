@@ -58,6 +58,10 @@ public class PlayerController : MonoBehaviour {
             }
         }
         
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            mPlayer.mDialogText.Show("TEST test test\nTest test");
+        }
 
         if (Input.GetMouseButtonDown(0))
         {

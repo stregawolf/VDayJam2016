@@ -7,9 +7,23 @@ public class Shop : MonoBehaviour {
 
     public Transform[] mShopItemSlots;
 
+    public DialogText mDialogText;
+
+    public string[] mRandomDialog;
+    public string[] mRandomTranslatedDialog;
+
+    protected void Awake()
+    {
+        if(mDialogText == null)
+        {
+            mDialogText = GetComponentInChildren<DialogText>();
+        }
+    }
+
     protected void Start()
     {
         SpawnShopItems();
+        mDialogText.Show("Mew Mew Meow!", 10.0f);
     }
 
     public void SpawnShopItems()
@@ -40,5 +54,21 @@ public class Shop : MonoBehaviour {
         Transform slot = mShopItemSlots[slotIndex];
         GameObject obj = Instantiate(prefab, slot.position, slot.rotation) as GameObject;
         obj.transform.SetParent(slot);
+    }
+
+    protected void OnCollisionEnter(Collision c)
+    {
+        BasePlayer player = c.collider.GetComponentInParent<BasePlayer>();
+        if(player != null)
+        {
+            if(GlobalData.sbHasTranslator)
+            {
+                mDialogText.Show(mRandomTranslatedDialog[Random.Range(0, mRandomTranslatedDialog.Length)]);
+            }
+            else
+            {
+                mDialogText.Show(mRandomDialog[Random.Range(0, mRandomDialog.Length)]);
+            }
+        }
     }
 }

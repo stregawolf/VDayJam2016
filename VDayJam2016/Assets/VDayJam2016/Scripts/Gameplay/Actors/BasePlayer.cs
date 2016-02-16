@@ -9,6 +9,7 @@ public class BasePlayer : BaseActor {
 
     public GameObject mHeartProjectilePrefab;
 
+    public DialogText mDialogText;
 
     public enum EquipedWeaponType
     {
@@ -20,6 +21,15 @@ public class BasePlayer : BaseActor {
 
     public GameObject mMeleeWeaponModel;
     public GameObject mRangedWeaponModel;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        if(mDialogText == null)
+        {
+            mDialogText = GetComponentInChildren<DialogText>();
+        }
+    }
 
     protected void Start()
     {

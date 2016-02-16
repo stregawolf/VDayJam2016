@@ -344,8 +344,7 @@ public class GameManager : MonoBehaviour {
         mFollowCamera.UpdatePosition();
         if (Input.GetKeyDown(KeyCode.F1))
         {
-            GenerateLevel();
-            mFader.FadeIn();
+            OnRestartLevel();
         }
         if (Input.GetKeyDown(KeyCode.F2))
         {
