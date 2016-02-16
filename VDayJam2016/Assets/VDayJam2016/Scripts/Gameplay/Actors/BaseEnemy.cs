@@ -5,6 +5,11 @@ public class BaseEnemy : BaseActor {
     public float mHitRadius = 0.5f;
     public int mAttackPower = 1;
 
+    public int mMinHeartsValue = 1;
+    public int mMaxHeartsValue = 10;
+
+    public bool mIsBoss = false;
+
     public virtual void Attack(Vector3 target)
     {
         if(IsPlayingAnimation())
@@ -37,5 +42,17 @@ public class BaseEnemy : BaseActor {
     {
         Stop();
         base.TakeDamage(amount);
+    }
+
+    public override void OnDeath()
+    {
+        base.OnDeath();
+
+        LoseHearts(Random.Range(mMinHeartsValue, mMaxHeartsValue));
+
+        if(mIsBoss)
+        {
+            Signal.Dispatch(SignalType.BossDefeated);
+        }
     }
 }

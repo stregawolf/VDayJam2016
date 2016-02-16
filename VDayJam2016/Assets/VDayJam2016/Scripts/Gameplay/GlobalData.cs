@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using System;
 
 public static class GlobalData
@@ -15,7 +15,12 @@ public static class GlobalData
         set { sNumHearts = value; Signal.Dispatch(SignalType.HeartAmountChanged); }
     }
 
-    public static int sCurrentFloor = 1;
+    private static int sCurrentFloor = 1;
+    public static int CurrentFloor
+    {
+        get { return sCurrentFloor; }
+        set { sCurrentFloor = value; Signal.Dispatch(SignalType.OnFloorChanged); }
+    }
 
     private static int sNumAmmo = 10;
     public static int NumAmmo
@@ -30,7 +35,66 @@ public static class GlobalData
         set { sMaxAmmo = value; Signal.Dispatch(SignalType.AmmoAmountChanged); }
     }
 
-    public static bool sbHasTranslator = false;
+    public enum ItemId
+    {
+        Translator,
+        BankKey,
+        GiftRing,
+        GiftTech,
+        GiftFlowers,
+        GiftChocolate,
+    }
+    private static HashSet<ItemId> sCollectedItems = new HashSet<ItemId>();
+    public static void SetCollectedItem(ItemId id)
+    {
+        sCollectedItems.Add(id);
+        switch (id)
+        {
+            case ItemId.GiftFlowers:
+                ActiveBoss = BossId.Flower;
+                break;
+            case ItemId.GiftChocolate:
+                ActiveBoss = BossId.Chocolate;
+                break;
+            case ItemId.GiftRing:
+                ActiveBoss = BossId.Imposter;
+                break;
+        }
+    }
+
+    public static bool ItemCollected(ItemId id)
+    {
+        return sCollectedItems.Contains(id);
+    }
+
+    public enum BossId
+    {
+        None,
+        Flower,
+        Chocolate,
+        Imposter,
+    }
+    private static HashSet<BossId> sBossesDefeated = new HashSet<BossId>();
+    public static void SetBossDefeated(BossId id)
+    {
+        sBossesDefeated.Add(id);
+        ActiveBoss = BossId.None;
+    }
+    public static bool BossDefeated(BossId id)
+    {
+        if(id == BossId.None)
+        {
+            return true;
+        }
+        return sBossesDefeated.Contains(id);
+    }
+    
+    private static BossId sActiveBoss = BossId.None;
+    public static BossId ActiveBoss
+    {
+        get { return sActiveBoss; }
+        set { sActiveBoss = value; Signal.Dispatch(SignalType.OnFloorChanged); }
+    }
 
     public static void ResetData()
     {
@@ -40,7 +104,9 @@ public static class GlobalData
         sNumAmmo = 10;
         sMaxAmmo = 10;
 
-        sbHasTranslator = false;
+        sCollectedItems.Clear();
+        sBossesDefeated.Clear();
+        sActiveBoss = BossId.None;
     }
 }
 

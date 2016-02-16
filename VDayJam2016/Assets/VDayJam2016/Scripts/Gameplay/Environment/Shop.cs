@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 
 public class Shop : MonoBehaviour {
-    public GameObject[] mAlwaysAvailableItems;
-    public GameObject[] mRandomItemPool;
-
-    public Transform[] mShopItemSlots;
+    public GameObject[] mSpecialItemPool;
+    public GameObject[] mGiftItemPool;
+    
+    public Transform mSpecialItemSlot;
+    public Transform mGiftItemSlot;
 
     public DialogText mDialogText;
 
@@ -23,13 +24,57 @@ public class Shop : MonoBehaviour {
     protected void Start()
     {
         SpawnShopItems();
-        mDialogText.Show("Mew Mew Meow!", 10.0f);
+
+        if (GlobalData.ItemCollected(GlobalData.ItemId.Translator))
+        {
+            mDialogText.Show("Welcome to my shop!", 10.0f);
+        }
+        else
+        {
+            mDialogText.Show("Mew Mew Meow!", 10.0f);
+        }
     }
 
     public void SpawnShopItems()
     {
+        // set special item
+        List<GameObject> availableSpecialItems = new List<GameObject>();
+        for (int i = 0, n = mSpecialItemPool.Length; i < n; ++i)
+        {
+            BaseShopItem shopItem = mSpecialItemPool[i].GetComponent<BaseShopItem>();
+            if (shopItem != null && shopItem.CanBePurchased())
+            {
+                availableSpecialItems.Add(mSpecialItemPool[i]);
+            }
+        }
+
+        if(availableSpecialItems.Count > 0)
+        {
+            SetShopItem(availableSpecialItems[Random.Range(0, availableSpecialItems.Count)], mSpecialItemSlot);
+        }
+
+        // set gift item
+        for (int i = 0, n = mGiftItemPool.Length; i < n; ++i)
+        {
+            BaseShopItem shopItem = mGiftItemPool[i].GetComponent<BaseShopItem>();
+            if (shopItem != null && shopItem.CanBePurchased())
+            {
+                SetShopItem(mGiftItemPool[i], mGiftItemSlot);
+                break;
+            }
+        }
+
+        /*
         int numAlwaysAvailableItems = mAlwaysAvailableItems.Length;
-        List<GameObject> randomItemPool = new List<GameObject>(mRandomItemPool);
+        List<GameObject> availableSpecialItems = new List<GameObject>();
+        for(int i = 0, n = mSpecialItemPool.Length; i < n; ++i)
+        {
+            BaseShopItem shopItem = mSpecialItemPool[i].GetComponent<BaseShopItem>();
+            if(shopItem != null && shopItem.CanBePurchased())
+            {
+                availableSpecialItems.Add(mSpecialItemPool[i]);
+            }
+        }
 
         for (int i = 0, n = mShopItemSlots.Length; i < n; ++i)
         {
@@ -39,19 +84,23 @@ public class Shop : MonoBehaviour {
             }
             else
             {
-                if(randomItemPool.Count > 0)
+                if(availableSpecialItems.Count > 0)
                 {
-                    GameObject randomItem = randomItemPool[Random.Range(0, randomItemPool.Count)];
-                    randomItemPool.Remove(randomItem);
+                    GameObject randomItem = availableSpecialItems[Random.Range(0, availableSpecialItems.Count)];
+                    availableSpecialItems.Remove(randomItem);
                     SetShopItem(randomItem, i);
+                }
+                else
+                {
+                    break;
                 }
             }
         }
+        */
     }
 
-    public void SetShopItem(GameObject prefab, int slotIndex)
+    public void SetShopItem(GameObject prefab, Transform slot)
     {
-        Transform slot = mShopItemSlots[slotIndex];
         GameObject obj = Instantiate(prefab, slot.position, slot.rotation) as GameObject;
         obj.transform.SetParent(slot);
     }
@@ -61,7 +110,7 @@ public class Shop : MonoBehaviour {
         BasePlayer player = c.collider.GetComponentInParent<BasePlayer>();
         if(player != null)
         {
-            if(GlobalData.sbHasTranslator)
+            if (GlobalData.ItemCollected(GlobalData.ItemId.Translator))
             {
                 mDialogText.Show(mRandomTranslatedDialog[Random.Range(0, mRandomTranslatedDialog.Length)]);
             }

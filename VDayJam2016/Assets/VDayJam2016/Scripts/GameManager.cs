@@ -25,6 +25,13 @@ public class GameManager : MonoBehaviour {
 
     public LevelData mShopLevelData;
     public LevelData mReviveZoneLevelData;
+    public LevelData mFlowerBossLevelData;
+    public LevelData mChocolateBossLevelData;
+    public LevelData mImposterVuBossLevelData;
+    public LevelData mImposterRoseBossLevelData;
+
+    public LevelData mWinVuLevelData;
+    public LevelData mWinRoseLevelData;
 
     protected Goal mGoal;
     protected Vector3 mStartPos;
@@ -76,6 +83,8 @@ public class GameManager : MonoBehaviour {
         Signal.Register(SignalType.StartNextLevel, OnStartNextLevel);
         Signal.Register(SignalType.RestartLevel, OnRestartLevel);
         Signal.Register(SignalType.PlayerDeath, OnPlayerDeath);
+        Signal.Register(SignalType.BossDefeated, OnBossDefeated);
+        Signal.Register(SignalType.FinalBossLevelCompleted, OnFinalBossLevelCompleted);
 	}
 
     protected void OnDestroy()
@@ -86,6 +95,8 @@ public class GameManager : MonoBehaviour {
             Signal.Unregister(SignalType.StartNextLevel, OnStartNextLevel);
             Signal.Unregister(SignalType.RestartLevel, OnRestartLevel);
             Signal.Unregister(SignalType.PlayerDeath, OnPlayerDeath);
+            Signal.Unregister(SignalType.BossDefeated, OnBossDefeated);
+            Signal.Unregister(SignalType.FinalBossLevelCompleted, OnFinalBossLevelCompleted);
             sInstance = null;
         }
     }
@@ -117,10 +128,10 @@ public class GameManager : MonoBehaviour {
 
     public void LoadLevel(LevelData data)
     {
-        LoadLevel(data.mData, data.mPlayerCell, data.mGoalCell, data.mGoalSignalType, data.mSpawnDatas);
+        LoadLevel(data.mData, data.mPlayerCell, data.mGoalCell, data.mGoalSignalType, data.mbGoalActiveAtStart, data.mSpawnDatas);
     }
 
-    public void LoadLevel(string data, Vector2i playerStartCell, Vector2i goalCell, SignalType goalSignalType, LevelData.SpawnData[] spawnDatas = null)
+    public void LoadLevel(string data, Vector2i playerStartCell, Vector2i goalCell, SignalType goalSignalType, bool goalActive, LevelData.SpawnData[] spawnDatas = null)
     {
         ClearSpecialObjects();
         ClearCollectables();
@@ -131,6 +142,7 @@ public class GameManager : MonoBehaviour {
         RespawnPlayer1();
         mGoal.mSignalType = goalSignalType;
         mGoal.transform.position = mDungeon.GetTilePosition(goalCell.mX, goalCell.mY);
+        mGoal.gameObject.SetActive(goalActive);
         mDungeon.SetCell(goalCell.mX, goalCell.mY, DungeonCell.TileType.Goal);
         
         if(spawnDatas != null)
@@ -283,6 +295,10 @@ public class GameManager : MonoBehaviour {
         Time.timeScale = 0.0f;
         mFader.FadeOut(() =>
         {
+            if(GlobalData.ActiveBoss != GlobalData.BossId.None)
+            {
+                GlobalData.SetBossDefeated(GlobalData.ActiveBoss);
+            }
             LoadLevel(mShopLevelData);
             Time.timeScale = 1.0f;
             mFader.FadeIn();
@@ -301,13 +317,42 @@ public class GameManager : MonoBehaviour {
         });
     }
 
+    public void OnBossDefeated()
+    {
+        mGoal.gameObject.SetActive(true);
+    }
+
+    public void OnFinalBossLevelCompleted()
+    {
+        mFader.FadeOut(() =>
+        {
+            if (GlobalData.sSelectedCharacter == SelectedCharacter.Rose)
+            {
+                LoadLevel(mWinRoseLevelData);
+            }
+            else
+            {
+                LoadLevel(mWinVuLevelData);
+            }
+            Time.timeScale = 1.0f;
+            mFader.FadeIn();
+        });
+    }
+
     public void OnStartNextLevel()
     {
         Time.timeScale = 0.0f;
         mFader.FadeOut(() =>
         {
-            GlobalData.sCurrentFloor++;
-            GenerateLevel();
+            if(GlobalData.ActiveBoss == GlobalData.BossId.None)
+            {
+                GlobalData.CurrentFloor++;
+                GenerateLevel();
+            }
+            else
+            {
+                LoadBossLevel(GlobalData.ActiveBoss);
+            }
             Time.timeScale = 1.0f;
             mFader.FadeIn();
         });
@@ -318,7 +363,14 @@ public class GameManager : MonoBehaviour {
         Time.timeScale = 0.0f;
         mFader.FadeOut(() =>
         {
-            GenerateLevel();
+            if (GlobalData.ActiveBoss == GlobalData.BossId.None)
+            {
+                GenerateLevel();
+            }
+            else
+            {
+                LoadBossLevel(GlobalData.ActiveBoss);
+            }
             Time.timeScale = 1.0f;
             mFader.FadeIn();
         });
@@ -327,6 +379,29 @@ public class GameManager : MonoBehaviour {
     public void QuitToTitle()
     {
         mFader.FadeOut(() => SceneManager.LoadScene("Title"));
+    }
+
+    public void LoadBossLevel(GlobalData.BossId bossId)
+    {
+        switch (bossId)
+        {
+            case GlobalData.BossId.Flower:
+                LoadLevel(mFlowerBossLevelData);
+                break;
+            case GlobalData.BossId.Chocolate:
+                LoadLevel(mChocolateBossLevelData);
+                break;
+            case GlobalData.BossId.Imposter:
+                if(GlobalData.sSelectedCharacter == SelectedCharacter.Rose)
+                {
+                    LoadLevel(mImposterRoseBossLevelData);
+                }
+                else
+                {
+                    LoadLevel(mImposterVuBossLevelData);
+                }
+                break;
+        }
     }
 
     protected void Update()

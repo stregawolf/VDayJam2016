@@ -14,6 +14,11 @@ public enum SignalType
     AmmoAmountChanged,
     WeaponChanged,
     PlayerDeath,
+    Unused,
+    HeartBankUnlocked,
+    OnFloorChanged,
+    BossDefeated,
+    FinalBossLevelCompleted,
 }
 
 public class Signal

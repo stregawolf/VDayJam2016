@@ -21,6 +21,8 @@ public class BaseActor : MonoBehaviour {
     protected int mHp = 0;
     public int Hp { get { return mHp; } }
 
+    public GameObject mHeartProjectilePrefab;
+
     protected Vector3 mMoveDir;
     protected float mSpeedFactor = 1.0f;
 
@@ -231,5 +233,47 @@ public class BaseActor : MonoBehaviour {
         }
 
         mLastPos = mRigidbody.position;
+    }
+
+    public void LoseHearts(int numHearts)
+    {
+        Vector3 startPos = transform.position + transform.up * 0.5f;
+        while (numHearts > 0)
+        {
+            int value = 1;
+            float scale = 1.0f;
+            if (numHearts > 375)
+            {
+                value = 100;
+                scale = 2.0f;
+            }
+            else if (numHearts > 125)
+            {
+                value = 50;
+                scale = 1.75f;
+            }
+            else if (numHearts > 100)
+            {
+                value = 25;
+                scale = 1.5f;
+            }
+            else if (numHearts > 10)
+            {
+                value = 10;
+                scale = 1.25f;
+            }
+
+            Vector3 dir = Random.onUnitSphere;
+            dir.y = 0;
+            dir.Normalize();
+            Vector3 spawnPos = startPos + dir * 0.5f;
+            GameObject projectileObj = GameManager.Instance.SpawnPrefab(mHeartProjectilePrefab, spawnPos, Quaternion.identity);
+            HeartProjectile projectile = projectileObj.GetComponent<HeartProjectile>();
+            projectile.mHeartValue = value;
+            projectile.transform.localScale *= scale;
+            projectile.Throw(null, spawnPos, dir, Random.Range(3.0f, 10.0f), false);
+
+            numHearts -= value;
+        }
     }
 }

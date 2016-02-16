@@ -7,21 +7,36 @@ public class FloorCounter : MonoBehaviour {
 
     private void Awake()
     {
-        Signal.Register(SignalType.LevelStart, OnFloorChanged);
+        OnFloorChanged();
+        Signal.Register(SignalType.OnFloorChanged, OnFloorChanged);
+        Signal.Register(SignalType.FinalBossLevelCompleted, OnFinalBossLevelCompleted);
     }
 
     private void OnDestroy()
     {
-        Signal.Unregister(SignalType.LevelStart, OnFloorChanged);
+        Signal.Unregister(SignalType.OnFloorChanged, OnFloorChanged);
+        Signal.Unregister(SignalType.FinalBossLevelCompleted, OnFinalBossLevelCompleted);
     }
 
     public void OnFloorChanged()
     {
-        SetDisplayAmount(GlobalData.sCurrentFloor);
+        SetDisplayAmount(GlobalData.CurrentFloor);
+    }
+
+    public void OnFinalBossLevelCompleted()
+    {
+        mCountLabel.text = "Congratulations!";
     }
 
     public void SetDisplayAmount(int amount)
     {
-        mCountLabel.text = string.Format("Floor {0}", amount);
+        if(GlobalData.ActiveBoss == GlobalData.BossId.None)
+        {
+            mCountLabel.text = string.Format("Floor {0}", amount);
+        }
+        else
+        {
+            mCountLabel.text = string.Format("Boss {0}", GlobalData.ActiveBoss.ToString());
+        }
     }
 }

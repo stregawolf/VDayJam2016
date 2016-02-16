@@ -9,6 +9,7 @@ public class LevelData : ScriptableObject
     public Vector2i mPlayerCell;
     public Vector2i mGoalCell;
     public SignalType mGoalSignalType = SignalType.StartNextLevel;
+    public bool mbGoalActiveAtStart = true;
 
     [System.Serializable]
     public class SpawnData

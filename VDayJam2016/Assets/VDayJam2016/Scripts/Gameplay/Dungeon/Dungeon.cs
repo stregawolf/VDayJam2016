@@ -97,7 +97,7 @@ public class Dungeon : MonoBehaviour {
         int y = 0;
         do
         {
-            Debug.Log(rows[y]);
+            //Debug.Log(rows[y]);
             currRow = rows[y].Split(',');
             for (int x = 0; x < width; ++x)
             {

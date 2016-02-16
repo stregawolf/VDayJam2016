@@ -42,6 +42,6 @@ public class FollowCamera : BaseCamera {
                 destPos = Vector3.Lerp(destPos, mousePos, mMouseLookAheadFactor);
             }
         }
-        transform.position = Vector3.Lerp(transform.position, destPos, Time.deltaTime * mLerpSpeed);
+        transform.position = Vector3.Lerp(transform.position, destPos, Time.unscaledDeltaTime * mLerpSpeed);
     }
 }

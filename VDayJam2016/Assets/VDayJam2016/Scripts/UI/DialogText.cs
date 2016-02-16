@@ -5,6 +5,7 @@ public class DialogText : MonoBehaviour {
     public const float kShowTweenTime = 0.33f;
 
     public TextMesh mText;
+    protected Coroutine mDisplayCoroutine;
 
     public void Awake()
     {
@@ -21,12 +22,15 @@ public class DialogText : MonoBehaviour {
         transform.forward = Camera.main.transform.forward;
     }
 
-    public void Show(string text, float duration = 3.0f)
+    public void Show(string text, float duration = 5.0f)
     {
         gameObject.SetActive(true);
-        StopCoroutine("HandleTextDisplay");
+        if(mDisplayCoroutine != null)
+        {
+            StopCoroutine(mDisplayCoroutine);
+        }
         mText.text = text;
-        StartCoroutine(HandleTextDisplay(duration));
+        mDisplayCoroutine = StartCoroutine(HandleTextDisplay(duration));
     }
 
     public IEnumerator HandleTextDisplay(float duration)
