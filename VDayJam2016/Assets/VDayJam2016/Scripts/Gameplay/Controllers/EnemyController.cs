@@ -16,6 +16,7 @@ public class EnemyController : MonoBehaviour {
         Chase,
         Attack,
         Flee,
+        Boss,
     }
 
     public EnemyState mCurrentState = EnemyState.Idle;
@@ -57,9 +58,16 @@ public class EnemyController : MonoBehaviour {
             case EnemyState.Flee:
                 HandleFleeState(player);
                 break;
+            case EnemyState.Boss:
+                HandleBossBehaviour(player);
+                break;
         }
     }
-    
+
+    protected virtual void HandleBossBehaviour(BasePlayer player)
+    {
+
+    }
 
     protected virtual void HandleFleeState(BasePlayer player)
     {

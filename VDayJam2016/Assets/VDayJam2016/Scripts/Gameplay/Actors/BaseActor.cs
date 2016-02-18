@@ -135,6 +135,11 @@ public class BaseActor : MonoBehaviour {
 
     public virtual void MoveDir(Vector3 dir, float speedFactor = 1.0f)
     {
+        if(mHp <= 0)
+        {
+            return;
+        }
+
         mMoveDir = dir.normalized;
         mSpeedFactor = speedFactor;
         if (mbFaceMovementDirection)
@@ -151,6 +156,11 @@ public class BaseActor : MonoBehaviour {
 
     public virtual void LookDir(Vector3 dir)
     {
+        if(mHp <= 0)
+        {
+            return;
+        }
+
         dir.y = transform.position.y;
         dir.Normalize();
         transform.rotation = Quaternion.LookRotation(dir, Vector3.up);
@@ -168,6 +178,7 @@ public class BaseActor : MonoBehaviour {
         if(mHp <= 0)
         {
             mHp = 0;
+            Stop();
             StartCoroutine(Flicker(OnDeath));
         }
         else
@@ -235,6 +246,15 @@ public class BaseActor : MonoBehaviour {
         mLastPos = mRigidbody.position;
     }
 
+    public HeartProjectile DropHeart(int value)
+    {
+        Vector3 startPos = transform.position + transform.up * 0.5f;
+        HeartProjectile projectile = FireProjectile(null, mHeartProjectilePrefab, startPos, Vector3.zero, 0, Quaternion.identity) as HeartProjectile;
+        projectile.mHeartValue = value;
+        projectile.transform.localScale *= 1.0f + Mathf.Clamp01(value / 100.0f);
+        return projectile;
+    }
+
     public void LoseHearts(int numHearts)
     {
         Vector3 startPos = transform.position + transform.up * 0.5f;
@@ -266,14 +286,20 @@ public class BaseActor : MonoBehaviour {
             Vector3 dir = Random.onUnitSphere;
             dir.y = 0;
             dir.Normalize();
-            Vector3 spawnPos = startPos + dir * 0.5f;
-            GameObject projectileObj = GameManager.Instance.SpawnPrefab(mHeartProjectilePrefab, spawnPos, Quaternion.identity);
-            HeartProjectile projectile = projectileObj.GetComponent<HeartProjectile>();
+            Vector3 spawnPos = startPos + dir;// * 0.5f;
+            HeartProjectile projectile = FireProjectile(null, mHeartProjectilePrefab, spawnPos, dir, Random.Range(3.0f, 10.0f), Quaternion.identity) as HeartProjectile;
             projectile.mHeartValue = value;
             projectile.transform.localScale *= scale;
-            projectile.Throw(null, spawnPos, dir, Random.Range(3.0f, 10.0f), false);
 
             numHearts -= value;
         }
+    }
+
+    public virtual BaseProjectile FireProjectile(BaseActor owner, GameObject projectilePrefab, Vector3 startPos, Vector3 dir, float speed, Quaternion rotation, bool optAddTorque = true)
+    {
+        GameObject projectileObj = GameManager.Instance.SpawnPrefab(projectilePrefab, startPos, rotation);
+        BaseProjectile projectile = projectileObj.GetComponent<BaseProjectile>();
+        projectile.Throw(owner, startPos, dir, speed, optAddTorque);
+        return projectile;
     }
 }

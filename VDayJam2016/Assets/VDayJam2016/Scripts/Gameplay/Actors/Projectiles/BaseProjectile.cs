@@ -5,9 +5,12 @@ public class BaseProjectile : MonoBehaviour {
 
     public int mDamagePower;
     public float mLifetime = 2.0f;
+    public float mMovementDelayTime = 0.0f;
+    public bool mBounceOffWalls = true;
 
     public Rigidbody mRigidbody;
     public Collider mCollider;
+
 
     protected BaseActor mOwner;
     protected Vector3 mLastPos;
@@ -26,7 +29,9 @@ public class BaseProjectile : MonoBehaviour {
 
     protected void FixedUpdate()
     {
-        if(GameManager.Instance.mDungeon.GetCell(mRigidbody.position).mTileType == DungeonCell.TileType.Wall)
+        mMovementDelayTime -= Time.deltaTime;
+
+        if (mMovementDelayTime > 0.0f || GameManager.Instance.mDungeon.GetCell(mRigidbody.position).mTileType == DungeonCell.TileType.Wall)
         {
             mRigidbody.position = mLastPos;
         }
@@ -34,19 +39,26 @@ public class BaseProjectile : MonoBehaviour {
         Vector3 dest = mRigidbody.position + mRigidbody.velocity * Time.fixedDeltaTime;
         if (GameManager.Instance.mDungeon.GetCell(dest).mTileType == DungeonCell.TileType.Wall)
         {
-            Vector2i currCell = GameManager.Instance.mDungeon.WorldToCellPos(mRigidbody.position);
-            Vector2i destCell = GameManager.Instance.mDungeon.WorldToCellPos(dest);
-            Vector3 vel = mRigidbody.velocity;
-            if(destCell.mX - currCell.mX != 0)
+            if(mBounceOffWalls)
             {
-                vel.x *= -0.5f;
+                Vector2i currCell = GameManager.Instance.mDungeon.WorldToCellPos(mRigidbody.position);
+                Vector2i destCell = GameManager.Instance.mDungeon.WorldToCellPos(dest);
+                Vector3 vel = mRigidbody.velocity;
+                if (destCell.mX - currCell.mX != 0)
+                {
+                    vel.x *= -0.5f;
+                }
+                if (destCell.mY - currCell.mY != 0)
+                {
+                    vel.z *= -0.5f;
+                }
+                vel.y *= 0.5f;
+                mRigidbody.velocity = vel;
             }
-            if(destCell.mY - currCell.mY != 0)
+            else
             {
-                vel.z *= -0.5f;
+                Destroy(gameObject);
             }
-            vel.y *= 0.5f;
-            mRigidbody.velocity = vel;
         }
 
         mLastPos = mRigidbody.position;
@@ -56,7 +68,8 @@ public class BaseProjectile : MonoBehaviour {
     {
         mOwner = owner;
         mRigidbody.position = startPos;
-        if(addTorque)
+        mLastPos = startPos;
+        if (addTorque)
         {
             mRigidbody.AddTorque(Random.onUnitSphere * 10.0f);
         }
@@ -80,7 +93,7 @@ public class BaseProjectile : MonoBehaviour {
         if(hitActor != null && hitActor != mOwner)
         {
             hitActor.TakeDamage(mDamagePower);
-            hitActor.KnockBack(mRigidbody.velocity.normalized * mDamagePower / 2.0f);
+            //hitActor.KnockBack(mRigidbody.velocity.normalized * mDamagePower *0.15f);
             Destroy(gameObject);
         }
     }

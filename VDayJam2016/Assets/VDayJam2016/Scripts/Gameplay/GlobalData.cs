@@ -7,7 +7,13 @@ public static class GlobalData
     public static SelectedCharacter sSelectedCharacter = SelectedCharacter.None;
 
     public static int TotalHearts { get { return sNumBankedHearts + sNumHearts; } }
-    public static int sNumBankedHearts = 0;
+    private static int sNumBankedHearts = 0;
+    public static int NumBankedHearts
+    {
+        get { return sNumBankedHearts; }
+        set { sNumBankedHearts = value; Signal.Dispatch(SignalType.BankedHeartAmountChanged); }
+    }
+
     private static int sNumHearts = 1;
     public static int NumHearts
     {

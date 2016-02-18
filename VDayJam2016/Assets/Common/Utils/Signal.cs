@@ -19,6 +19,7 @@ public enum SignalType
     OnFloorChanged,
     BossDefeated,
     FinalBossLevelCompleted,
+    BankedHeartAmountChanged,
 }
 
 public class Signal

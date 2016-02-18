@@ -1,12 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class HeartCollectable : BaseCollectable {
-
+public class HeartCollectable : BaseCollectable
+{
+    public GameObject mCollectionVFX;
     public override void OnCollect(GameObject collector)
     {
         SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_pickup2);
-        GlobalData.NumHearts++;
-        base.OnCollect(collector);
+        BasePlayer hitPlayer = collector.GetComponentInParent<BasePlayer>();
+        if (hitPlayer != null)
+        {
+            hitPlayer.mDialogText.Show("+1 <3", 2.0f);
+            GlobalData.NumHearts++;
+            Instantiate(mCollectionVFX, transform.position, Quaternion.identity);
+            base.OnCollect(collector);
+        }
     }
 }
