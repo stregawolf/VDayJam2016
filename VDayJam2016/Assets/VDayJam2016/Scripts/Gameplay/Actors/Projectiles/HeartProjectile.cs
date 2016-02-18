@@ -55,6 +55,7 @@ public class HeartProjectile : BaseProjectile {
         BasePlayer hitPlayer = c.gameObject.GetComponentInParent<BasePlayer>();
         if (hitPlayer != null)
         {
+            SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_pickup1);
             hitPlayer.mDialogText.Show(string.Format("+{0} Heart", mHeartValue), 2.0f);
             GlobalData.NumHearts += mHeartValue;
             Instantiate(mCollectionVFX, transform.position, Quaternion.identity);
