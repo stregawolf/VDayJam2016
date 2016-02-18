@@ -54,6 +54,7 @@ public class HeartProjectile : BaseProjectile {
         BasePlayer hitPlayer = c.gameObject.GetComponentInParent<BasePlayer>();
         if (hitPlayer != null && !hitPlayer.IsFlickering)
         {
+            SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_pickup1);
             GlobalData.NumHearts += mHeartValue;
             Destroy(gameObject);
         }

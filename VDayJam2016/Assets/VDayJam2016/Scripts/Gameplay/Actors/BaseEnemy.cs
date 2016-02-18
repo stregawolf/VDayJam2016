@@ -47,7 +47,7 @@ public class BaseEnemy : BaseActor {
     public override void OnDeath()
     {
         base.OnDeath();
-
+        SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_monster_pop);
         LoseHearts(Random.Range(mMinHeartsValue, mMaxHeartsValue));
 
         if(mIsBoss)

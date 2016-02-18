@@ -12,10 +12,18 @@ public class TitleScreen : MonoBehaviour {
             mFader = FindObjectOfType<Fader>();
         }
         mFader.FadeIn();
+        playTitleTheme();
     }
 
     public void OnPlayPressed()
     {
         mFader.FadeOut(() => SceneManager.LoadScene("CharacterSelect"));
+        SoundManager.Instance.PlayMenuConfirmSFX();
+    }
+    
+    private void playTitleTheme()
+    {
+        SoundManager.Instance.FadeIn();
+        SoundManager.Instance.PlayBgm(SoundManager.Instance.bgm_title);    
     }
 }

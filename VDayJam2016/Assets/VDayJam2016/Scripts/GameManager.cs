@@ -77,6 +77,8 @@ public class GameManager : MonoBehaviour {
 	protected void Start () 
     {
         GenerateLevel();
+        SoundManager.Instance.FadeIn(.25f);
+        SoundManager.Instance.PlayBgm(SoundManager.Instance.bgm_main, true);
         mFader.FadeIn();
 
         Signal.Register(SignalType.LevelComplete, OnLevelComplete);
@@ -293,8 +295,11 @@ public class GameManager : MonoBehaviour {
     public void OnLevelComplete()
     {
         Time.timeScale = 0.0f;
+        SoundManager.Instance.FadeOut(.5f);
         mFader.FadeOut(() =>
         {
+            SoundManager.Instance.FadeIn();
+            SoundManager.Instance.PlayBgm(SoundManager.Instance.bgm_shop);
             if(GlobalData.ActiveBoss != GlobalData.BossId.None)
             {
                 GlobalData.SetBossDefeated(GlobalData.ActiveBoss);
@@ -307,8 +312,12 @@ public class GameManager : MonoBehaviour {
 
     public void OnPlayerDeath()
     {
+        SoundManager.Instance.FadeOut(.5f);
         mFader.FadeOut(() =>
         {
+            SoundManager.Instance.FadeIn();
+            SoundManager.Instance.RestartBgm();
+            
             GlobalData.NumHearts = 1;
             GlobalData.NumAmmo = GlobalData.MaxAmmo;
             LoadLevel(mReviveZoneLevelData);
@@ -344,6 +353,7 @@ public class GameManager : MonoBehaviour {
         Time.timeScale = 0.0f;
         mFader.FadeOut(() =>
         {
+            SoundManager.Instance.PlayBgm(SoundManager.Instance.bgm_main);
             if(GlobalData.ActiveBoss == GlobalData.BossId.None)
             {
                 GlobalData.CurrentFloor++;

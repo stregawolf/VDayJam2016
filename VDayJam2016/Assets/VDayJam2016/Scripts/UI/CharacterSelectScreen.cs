@@ -48,6 +48,7 @@ public class CharacterSelectScreen : MonoBehaviour {
                     mSelectedCharacter = character;
                     if(mSelectedCharacter != null)
                     {
+                        SoundManager.Instance.PlayMenuConfirmSFX();
                         GlobalData.sSelectedCharacter = mSelectedCharacter.mCharacter;
                         mSelectedCharacter.Select();
                         UpdateDisplay();
@@ -85,17 +86,21 @@ public class CharacterSelectScreen : MonoBehaviour {
 
     public void OnBackPressed()
     {
+        SoundManager.Instance.PlayMenuDeclineSFX();
         mFader.FadeOut(() => SceneManager.LoadScene("Title"));
     }
 
     public void OnStartPressed()
     {
+        SoundManager.Instance.FadeOut(.4f);
+        SoundManager.Instance.PlayMenuConfirmSFX();
         GlobalData.ResetData();
         mFader.FadeOut(() => SceneManager.LoadScene("Game"));
     }
 
     public void OnVuPressed()
     {
+        SoundManager.Instance.PlayMenuConfirmSFX();
         GlobalData.sSelectedCharacter = SelectedCharacter.Vu;
         UpdateDisplay();
         mStartButton.SetActive(true);
@@ -103,6 +108,7 @@ public class CharacterSelectScreen : MonoBehaviour {
 
     public void OnRosePressed()
     {
+        SoundManager.Instance.PlayMenuConfirmSFX();
         GlobalData.sSelectedCharacter = SelectedCharacter.Rose;
         UpdateDisplay();
         mStartButton.SetActive(true);

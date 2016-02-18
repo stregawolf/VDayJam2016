@@ -1,0 +1,30 @@
+fileFormatVersion: 2
+guid: dc54f8533b602854381817e8e114d6f7
+timeCreated: 1455783574
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - DefaultSnapshot: {instanceID: 0}
+  - NoBgmSnapshot: {instanceID: 0}
+  - sfxSource: {instanceID: 0}
+  - bgmSource: {instanceID: 0}
+  - bgm_title: {instanceID: 0}
+  - bgm_main: {instanceID: 0}
+  - bgm_shop: {instanceID: 0}
+  - bgm_boss: {instanceID: 0}
+  - sfx_confirm: {instanceID: 0}
+  - sfx_decline: {instanceID: 0}
+  - sfx_pickup1: {instanceID: 0}
+  - sfx_pickup2: {instanceID: 0}
+  - sfx_player_atk_melee: {fileID: 8300000, guid: 23a348659fc04aa45a200f5124cb79d9,
+      type: 3}
+  - sfx_player_atk_ranged: {fileID: 8300000, guid: 120718f828c8e11489858b9943d6c252,
+      type: 3}
+  - sfx_playerhurt1: {instanceID: 0}
+  - sfx_playerhurt2: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

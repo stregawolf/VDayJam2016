@@ -47,6 +47,8 @@ public class BasePlayer : BaseActor {
         }
         else
         {
+            float rand = (Random.value);
+            SoundManager.Instance.PlaySfx((rand>.5)? SoundManager.Instance.sfx_playerhurt1: SoundManager.Instance.sfx_playerhurt2);
             TriggerAnimation("Hurt");
             StartCoroutine(Flicker());
             LoseHearts(GlobalData.NumHearts);
@@ -105,6 +107,8 @@ public class BasePlayer : BaseActor {
         switch(mEquipedWeaponType)
         {
             case EquipedWeaponType.Melee:
+                SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_player_atk_melee);
+                
                 Collider[] colliders = Physics.OverlapSphere(mModel.transform.position, mSwingRadius);
                 for (int i = 0, n = colliders.Length; i < n; ++i)
                 {
@@ -123,7 +127,8 @@ public class BasePlayer : BaseActor {
                 }
                 break;
             case EquipedWeaponType.Ranged:
-
+                SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_player_atk_ranged);
+                
                 Vector3 startPos = transform.position + transform.up * 0.5f + transform.forward * 0.5f;
                 GameObject projectileObj = GameManager.Instance.SpawnPrefab(mProjectilePrefab, startPos, Random.rotation);
                 BaseProjectile projectile = projectileObj.GetComponent<BaseProjectile>();
