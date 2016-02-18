@@ -5,6 +5,7 @@ public class HeartProjectile : BaseProjectile {
     public int mHeartValue = 1;
 
     public Renderer[] mRenderers;
+    public GameObject mCollectionVFX;
 
     protected override void Awake()
     {
@@ -52,9 +53,11 @@ public class HeartProjectile : BaseProjectile {
     public override void OnCollisionEnter(Collision c)
     {
         BasePlayer hitPlayer = c.gameObject.GetComponentInParent<BasePlayer>();
-        if (hitPlayer != null && !hitPlayer.IsFlickering)
+        if (hitPlayer != null)
         {
+            hitPlayer.mDialogText.Show(string.Format("+{0} <3", mHeartValue), 2.0f);
             GlobalData.NumHearts += mHeartValue;
+            Instantiate(mCollectionVFX, transform.position, Quaternion.identity);
             Destroy(gameObject);
         }
     }

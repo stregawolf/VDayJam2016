@@ -43,6 +43,7 @@ public class BasePlayer : BaseActor {
 
         if(GlobalData.NumHearts <= 0)
         {
+            mHp = 0;
             StartCoroutine(Flicker(OnDeath));
         }
         else
@@ -125,10 +126,7 @@ public class BasePlayer : BaseActor {
             case EquipedWeaponType.Ranged:
 
                 Vector3 startPos = transform.position + transform.up * 0.5f + transform.forward * 0.5f;
-                GameObject projectileObj = GameManager.Instance.SpawnPrefab(mProjectilePrefab, startPos, Random.rotation);
-                BaseProjectile projectile = projectileObj.GetComponent<BaseProjectile>();
-                projectile.Throw(this, startPos, transform.forward, mThrowVelocity);
-
+                FireProjectile(this, mProjectilePrefab, startPos, transform.forward, mThrowVelocity, Random.rotation);
                 mRangedWeaponModel.SetActive(false);
                 break;
         }

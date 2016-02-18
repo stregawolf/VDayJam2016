@@ -33,6 +33,8 @@ public class GameManager : MonoBehaviour {
     public LevelData mWinVuLevelData;
     public LevelData mWinRoseLevelData;
 
+    public LevelData mTestData;
+
     protected Goal mGoal;
     protected Vector3 mStartPos;
     protected PlayerController mPlayer1;
@@ -76,7 +78,15 @@ public class GameManager : MonoBehaviour {
 
 	protected void Start () 
     {
-        GenerateLevel();
+        if(mTestData != null)
+        {
+            LoadLevel(mTestData);
+        }
+        else
+        {
+            GenerateLevel();
+        }
+
         mFader.FadeIn();
 
         Signal.Register(SignalType.LevelComplete, OnLevelComplete);
@@ -133,6 +143,7 @@ public class GameManager : MonoBehaviour {
 
     public void LoadLevel(string data, Vector2i playerStartCell, Vector2i goalCell, SignalType goalSignalType, bool goalActive, LevelData.SpawnData[] spawnDatas = null)
     {
+        ClearProjectiles();
         ClearSpecialObjects();
         ClearCollectables();
         ClearEnemies();
@@ -188,6 +199,7 @@ public class GameManager : MonoBehaviour {
             GlobalData.NumHearts = 1;
         }
 
+        ClearProjectiles();
         ClearSpecialObjects();
 
         mDungeon.GenerateDungeon(mCurrentLevelData.mEnvironmentData);
@@ -202,6 +214,15 @@ public class GameManager : MonoBehaviour {
         GenerateEnemies();
 
         Signal.Dispatch(SignalType.LevelStart);
+    }
+
+    protected void ClearProjectiles()
+    {
+        BaseProjectile[] projectiles = FindObjectsOfType<BaseProjectile>();
+        for(int i = 0, n = projectiles.Length; i < n; ++i)
+        {
+            Destroy(projectiles[i].gameObject);
+        }
     }
 
     protected void ClearSpecialObjects()
