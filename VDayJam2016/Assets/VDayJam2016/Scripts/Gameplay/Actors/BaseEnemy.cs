@@ -51,7 +51,10 @@ public class BaseEnemy : BaseActor {
 
     public override void TakeDamage(int amount)
     {
-        Stop();
+        if(mIsStunnedAfterTakingDamage)
+        {
+            Stop();
+        }
         base.TakeDamage(amount);
         if(mDeathVFX != null && mHp <= 0)
         {

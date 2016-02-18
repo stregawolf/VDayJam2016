@@ -55,7 +55,7 @@ public class HeartProjectile : BaseProjectile {
         BasePlayer hitPlayer = c.gameObject.GetComponentInParent<BasePlayer>();
         if (hitPlayer != null)
         {
-            hitPlayer.mDialogText.Show(string.Format("+{0} <3", mHeartValue), 2.0f);
+            hitPlayer.mDialogText.Show(string.Format("+{0} Heart", mHeartValue), 2.0f);
             GlobalData.NumHearts += mHeartValue;
             Instantiate(mCollectionVFX, transform.position, Quaternion.identity);
             Destroy(gameObject);
