@@ -8,6 +8,9 @@ public class FlowerBoss : EnemyController {
     public float mFireRate = 5.0f;
     public float mMovementDelayTime = 1.0f;
 
+    public Color mDamagedColor = Color.yellow;
+    public Color mNearDeathColor = Color.red;
+
     protected float mFireTimer = 0.0f;
     protected float mMovementDelayTimer = 0.0f;
 
@@ -23,6 +26,15 @@ public class FlowerBoss : EnemyController {
 
         Vector3 dirToPlayer = player.transform.position - transform.position;
         float sqrdistToPlayer = dirToPlayer.sqrMagnitude;
+
+        if (mEnemy.Hp < mEnemy.mMaxHp * 0.33f)
+        {
+            mEnemy.SetColor(mNearDeathColor);
+        }
+        else if (mEnemy.Hp < mEnemy.mMaxHp * 0.66f)
+        {
+            mEnemy.SetColor(mDamagedColor);
+        }
 
         mFireTimer -= Time.deltaTime;
         mMovementDelayTimer -= Time.deltaTime;
