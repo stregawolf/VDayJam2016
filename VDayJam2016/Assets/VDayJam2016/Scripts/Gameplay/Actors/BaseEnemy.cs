@@ -51,10 +51,7 @@ public class BaseEnemy : BaseActor {
 
     public override void TakeDamage(int amount)
     {
-        if(mIsStunnedAfterTakingDamage)
-        {
-            Stop();
-        }
+        Stop();
         base.TakeDamage(amount);
         if(mDeathVFX != null && mHp <= 0)
         {
@@ -66,11 +63,16 @@ public class BaseEnemy : BaseActor {
     {
         base.OnDeath();
         SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_monster_pop);
-        HeartProjectile heart = DropHeart(Random.Range(mMinHeartsValue, mMaxHeartsValue));
-        if(mIsBoss)
+        int heartValue = Random.Range(mMinHeartsValue, mMaxHeartsValue);
+        if(heartValue > 0)
         {
-            heart.transform.localScale *= 2;
+            HeartProjectile heart = DropHeart(heartValue);
+            if (mIsBoss)
+            {
+                heart.transform.localScale *= 2;
+            }
         }
+        
 
         if(mIsBoss)
         {

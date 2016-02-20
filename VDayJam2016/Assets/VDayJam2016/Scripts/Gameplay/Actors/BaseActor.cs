@@ -22,7 +22,6 @@ public class BaseActor : MonoBehaviour {
     public int Hp { get { return mHp; } }
 
     public GameObject mHeartProjectilePrefab;
-    public bool mIsStunnedAfterTakingDamage = true;
 
     protected Vector3 mMoveDir;
     protected float mSpeedFactor = 1.0f;
@@ -173,10 +172,8 @@ public class BaseActor : MonoBehaviour {
         {
             return;
         }
-        if(mIsStunnedAfterTakingDamage)
-        {
-            TriggerAnimation("Hurt");
-        }
+
+        TriggerAnimation("Hurt");
 
         mHp -= amount;
         if(mHp <= 0)

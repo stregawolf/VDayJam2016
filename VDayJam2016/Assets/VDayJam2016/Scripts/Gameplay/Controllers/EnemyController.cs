@@ -5,10 +5,11 @@ public class EnemyController : MonoBehaviour {
     public BaseEnemy mEnemy;
     public float mVisionRadius = 5.0f;
     public float mAttackRadius = 1.0f;
+    public bool mStopWhileFlickering = true;
     protected float mVisionRadiusSquared;
     protected float mAttackRadiusSquared;
     protected Vector3 mOriginalPos;
-    
+
 
     public enum EnemyState
     {
@@ -39,7 +40,7 @@ public class EnemyController : MonoBehaviour {
 
     public virtual void UpdateBehavior(BasePlayer player)
     {
-        if(mEnemy.IsFlickering || mEnemy.Hp <= 0)
+        if((mStopWhileFlickering && mEnemy.IsFlickering) || mEnemy.Hp <= 0)
         {
             return;
         }
@@ -75,6 +76,7 @@ public class EnemyController : MonoBehaviour {
         float sqrdistToPlayer = dirToPlayer.sqrMagnitude;
         if (sqrdistToPlayer <= mAttackRadiusSquared)
         {
+            mEnemy.transform.rotation = Quaternion.LookRotation(dirToPlayer.normalized);
             mEnemy.Attack(player.transform.position);
             mCurrentState = EnemyState.Attack;
         }
@@ -140,18 +142,20 @@ public class EnemyController : MonoBehaviour {
             mWanderDir.Normalize();
         }
         else
-        { 
+        {
             mEnemy.MoveDir(mWanderDir, mWanderSpeed);
         }
 
         if (Vector3.SqrMagnitude(player.transform.position - transform.position) <= mVisionRadiusSquared)
         {
-            if(mbRunsFromPlayer)
+            Debug.Log("Player detected");
+            if (mbRunsFromPlayer)
             {
                 mCurrentState = EnemyState.Flee;
             }
             else
             {
+                Debug.Log("Chasing");
                 mCurrentState = EnemyState.Chase;
             }
         }

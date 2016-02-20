@@ -18,6 +18,7 @@ public class Dungeon : MonoBehaviour {
     public Transform mTileParent = null;
     
     protected BaseGrid<DungeonCell> mGrid = new BaseGrid<DungeonCell>();
+    public BaseGrid<DungeonCell> Grid { get { return mGrid; } }
     protected List<GameObject> mTileObjects = new List<GameObject>();
     protected List<Room> mRooms = new List<Room>();
     public List<Room> Rooms { get { return mRooms; } }
