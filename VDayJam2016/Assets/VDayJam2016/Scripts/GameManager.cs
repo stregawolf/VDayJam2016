@@ -349,6 +349,8 @@ public class GameManager : MonoBehaviour {
 
     public void OnBossDefeated()
     {
+        SoundManager.Instance.FadeOut(.5f);
+        SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_win_ditty);
         mGoal.gameObject.SetActive(true);
     }
 
@@ -374,9 +376,9 @@ public class GameManager : MonoBehaviour {
         Time.timeScale = 0.0f;
         mFader.FadeOut(() =>
         {
-            SoundManager.Instance.PlayBgm(SoundManager.Instance.bgm_main);
             if(GlobalData.ActiveBoss == GlobalData.BossId.None)
             {
+                SoundManager.Instance.PlayBgm(SoundManager.Instance.bgm_main);
                 GlobalData.CurrentFloor++;
                 GenerateLevel();
             }
@@ -414,6 +416,7 @@ public class GameManager : MonoBehaviour {
 
     public void LoadBossLevel(GlobalData.BossId bossId)
     {
+        SoundManager.Instance.PlayBgm(SoundManager.Instance.bgm_boss_flower);
         switch (bossId)
         {
             case GlobalData.BossId.Flower:

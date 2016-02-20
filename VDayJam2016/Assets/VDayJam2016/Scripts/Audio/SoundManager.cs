@@ -23,7 +23,9 @@ public class SoundManager : MonoBehaviour {
 	public AudioClip bgm_title;
 	public AudioClip bgm_main;
 	public AudioClip bgm_shop;
-	public AudioClip bgm_boss;
+	public AudioClip bgm_boss_flower;
+	public AudioClip bgm_boss_chocolate;
+	public AudioClip bgm_boss_imposter;
    
     //SFX
     public AudioClip sfx_confirm;
@@ -34,6 +36,7 @@ public class SoundManager : MonoBehaviour {
     public AudioClip sfx_player_atk_ranged;
     public AudioClip sfx_playerhurt1;
     public AudioClip sfx_playerhurt2;
+    public AudioClip sfx_win_ditty;
     
     public AudioClip sfx_monster_pop;
     public AudioClip sfx_ouch_bones;
