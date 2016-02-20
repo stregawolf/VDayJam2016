@@ -26,6 +26,7 @@ public class SoundManager : MonoBehaviour {
 	public AudioClip bgm_boss_flower;
 	public AudioClip bgm_boss_chocolate;
 	public AudioClip bgm_boss_imposter;
+    public AudioClip bgm_final_room;
    
     //SFX
     public AudioClip sfx_confirm;
@@ -87,13 +88,18 @@ public class SoundManager : MonoBehaviour {
 	}
 
 	public void PlayBgm(AudioClip clip, bool overwrite = false){
-        
-		if (clip != null && (overwrite || clip.name != curBgm)) {
+        if (clip != null && (overwrite || clip.name != curBgm)) {
             curBgm = clip.name;
 			bgmSource.clip = clip;
 			bgmSource.Play ();
-		}
+		} else if (clip == null) {
+            FadeOut();
+        }
 	}
+    
+    public void StopBgm(){
+        bgmSource.Stop();
+    }
     
     public void RestartBgm(){
         if(bgmSource.clip != null){

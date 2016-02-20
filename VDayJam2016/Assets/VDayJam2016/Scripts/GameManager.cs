@@ -349,7 +349,7 @@ public class GameManager : MonoBehaviour {
 
     public void OnBossDefeated()
     {
-        SoundManager.Instance.FadeOut(.5f);
+        SoundManager.Instance.StopBgm();
         SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_win_ditty);
         mGoal.gameObject.SetActive(true);
     }
@@ -358,6 +358,7 @@ public class GameManager : MonoBehaviour {
     {
         mFader.FadeOut(() =>
         {
+            SoundManager.Instance.PlayBgm(SoundManager.Instance.bgm_final_room);
             if (GlobalData.sSelectedCharacter == SelectedCharacter.Rose)
             {
                 LoadLevel(mWinRoseLevelData);
@@ -416,16 +417,18 @@ public class GameManager : MonoBehaviour {
 
     public void LoadBossLevel(GlobalData.BossId bossId)
     {
-        SoundManager.Instance.PlayBgm(SoundManager.Instance.bgm_boss_flower);
         switch (bossId)
         {
             case GlobalData.BossId.Flower:
+                SoundManager.Instance.PlayBgm(SoundManager.Instance.bgm_boss_flower);
                 LoadLevel(mFlowerBossLevelData);
                 break;
             case GlobalData.BossId.Chocolate:
+                SoundManager.Instance.PlayBgm(SoundManager.Instance.bgm_boss_chocolate);
                 LoadLevel(mChocolateBossLevelData);
                 break;
             case GlobalData.BossId.Imposter:
+                SoundManager.Instance.PlayBgm(SoundManager.Instance.bgm_boss_imposter);
                 if(GlobalData.sSelectedCharacter == SelectedCharacter.Rose)
                 {
                     LoadLevel(mImposterRoseBossLevelData);
