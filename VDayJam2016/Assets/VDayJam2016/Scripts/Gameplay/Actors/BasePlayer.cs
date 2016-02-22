@@ -13,7 +13,6 @@ public class BasePlayer : BaseActor {
     {
         Melee,
         Ranged,
-        Support,
     }
     public EquipedWeaponType mEquipedWeaponType = EquipedWeaponType.Melee;
 
@@ -43,6 +42,7 @@ public class BasePlayer : BaseActor {
 
         if(GlobalData.NumHearts <= 0)
         {
+            Stop();
             mHp = 0;
             StartCoroutine(Flicker(OnDeath));
         }
@@ -91,9 +91,6 @@ public class BasePlayer : BaseActor {
                 break;
             case EquipedWeaponType.Ranged:
                 ThrowProjectile();
-                break;
-            case EquipedWeaponType.Support:
-                UseSupport();
                 break;
         }
     }
@@ -157,10 +154,5 @@ public class BasePlayer : BaseActor {
         mRangedWeaponModel.SetActive(true);
         TriggerAnimation("WeaponSwing");
         GlobalData.NumAmmo--;
-    }
-
-    public void UseSupport()
-    {
-
     }
 }
