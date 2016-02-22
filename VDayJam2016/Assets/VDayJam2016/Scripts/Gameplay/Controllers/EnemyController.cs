@@ -10,6 +10,10 @@ public class EnemyController : MonoBehaviour {
     protected float mAttackRadiusSquared;
     protected Vector3 mOriginalPos;
 
+    public float mInitialResponseDelay = 0.0f;
+    protected float mInitialResponseDelayTimer = 0.0f;
+    public float mDefaultTimeBetweenAttacks = 1.0f;
+    protected float mAttackDelayTImer = 0.0f;
 
     public enum EnemyState
     {
@@ -33,6 +37,7 @@ public class EnemyController : MonoBehaviour {
     [ContextMenu("Init")]
     public virtual void Init()
     {
+        mInitialResponseDelayTimer = mInitialResponseDelay;
         mVisionRadiusSquared = mVisionRadius * mVisionRadius;
         mAttackRadiusSquared = mAttackRadius * mAttackRadius;
         mOriginalPos = transform.position;
@@ -45,7 +50,13 @@ public class EnemyController : MonoBehaviour {
             return;
         }
 
-        switch(mCurrentState)
+        if(mInitialResponseDelayTimer > 0)
+        {
+            mInitialResponseDelayTimer -= Time.deltaTime;
+            return;
+        }
+        mAttackDelayTImer -= Time.deltaTime;
+        switch (mCurrentState)
         {
             case EnemyState.Idle:
                 HandleIdleState(player);
@@ -74,8 +85,9 @@ public class EnemyController : MonoBehaviour {
     {
         Vector3 dirToPlayer = player.transform.position - transform.position;
         float sqrdistToPlayer = dirToPlayer.sqrMagnitude;
-        if (sqrdistToPlayer <= mAttackRadiusSquared)
+        if (sqrdistToPlayer <= mAttackRadiusSquared && mAttackDelayTImer <= 0.0f)
         {
+            mAttackDelayTImer = mDefaultTimeBetweenAttacks;
             mEnemy.transform.rotation = Quaternion.LookRotation(dirToPlayer.normalized);
             mEnemy.Attack(player.transform.position);
             mCurrentState = EnemyState.Attack;
@@ -104,8 +116,9 @@ public class EnemyController : MonoBehaviour {
     {
         Vector3 dirToPlayer = player.transform.position - transform.position;
         float sqrdistToPlayer = dirToPlayer.sqrMagnitude;
-        if(sqrdistToPlayer <= mAttackRadiusSquared)
+        if(sqrdistToPlayer <= mAttackRadiusSquared && mAttackDelayTImer <= 0.0f)
         {
+            mAttackDelayTImer = mDefaultTimeBetweenAttacks;
             mEnemy.Attack(player.transform.position);
             mCurrentState = EnemyState.Attack;
         }

@@ -7,7 +7,6 @@ public class ChocolateBoss : EnemyController
     public GameObject[] mPhase1MinionPrefabs;
     public GameObject[] mPhase2MinionPrefabs;
     public GameObject[] mPhase3MinionPrefabs;
-    public float mSpreadAngle = 15.0f;
     public float mSpawnRate = 5.0f;
     public float mMovementDelayTime = 1.0f;
     public int mMaxNumMinions = 25;
@@ -151,6 +150,7 @@ public class ChocolateBoss : EnemyController
             if (existingMinion.Hp <= 0 && !existingMinion.IsFlickering)
             {
                 Instantiate(mSpawnVFXPrefab, position, Quaternion.identity);
+                minionPool[i].Init();
                 existingMinion.TeleportTo(position);
                 existingMinion.transform.rotation = rotation;
                 existingMinion.Revive();
