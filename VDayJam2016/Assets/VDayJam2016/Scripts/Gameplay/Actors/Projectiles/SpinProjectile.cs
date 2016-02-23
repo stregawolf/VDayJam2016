@@ -9,7 +9,7 @@ public class SpinProjectile : BaseProjectile {
     public float mRampUpTime = 0.5f;
     protected float mRampUpTimer = 0.0f;
 
-    protected void Update()
+    protected virtual void Update()
     {
         if(mRampUpTime > 0)
         {

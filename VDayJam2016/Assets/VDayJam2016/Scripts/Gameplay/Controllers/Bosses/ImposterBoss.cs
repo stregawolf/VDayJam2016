@@ -24,6 +24,7 @@ public class ImposterBoss : EnemyController {
     protected Dictionary<GameObject, List<EnemyController>> mMinionPool = new Dictionary<GameObject, List<EnemyController>>();
 
     protected bool mbShouldChase = true;
+    protected Vector3 mStartingPos;
 
     public enum Phase
     {
@@ -41,6 +42,12 @@ public class ImposterBoss : EnemyController {
         mEnemyPlayer = mEnemy as EnemyPlayer;
         mRangedAttackRadiusSquared = mRangedRadius * mRangedRadius;
         mActionTimer = mActionRate;
+    }
+
+    public override void Init()
+    {
+        base.Init();
+        mStartingPos = transform.position;
     }
 
     public override void UpdateBehavior(BasePlayer player)
@@ -85,6 +92,7 @@ public class ImposterBoss : EnemyController {
                     HandleClonesPhaseAction(player, sqrdistToPlayer, dirToPlayer);
                     break;
                 case Phase.Laser:
+                    HandleLaserPhaseAction(player, sqrdistToPlayer, dirToPlayer);
                     break;
             }
         }
@@ -127,6 +135,9 @@ public class ImposterBoss : EnemyController {
                     HandleAvoidMeleeMovement(player, sqrdistToPlayer, dirToPlayer, maxDist, minDist);
                     break;
                 case Phase.Laser:
+                    maxDist = mAttackRadiusSquared * 3f;
+                    minDist = player.mSwingRadius * player.mSwingRadius + mAttackRadiusSquared * 2;
+                    HandleAvoidMeleeMovement(player, sqrdistToPlayer, dirToPlayer, maxDist, minDist);
                     break;
             }
             
@@ -248,7 +259,7 @@ public class ImposterBoss : EnemyController {
 
     protected void OnRangedPhaseMidSwing()
     {
-        FireProjectiles(mAttackCount + 2);
+        FireProjectiles(mEnemyPlayer.mProjectilePrefab, mAttackCount + 2, mSpreadAngle, mProjectileSpeed);
     }
 
     protected bool mbSpawnedClonesLastTime = false;
@@ -329,19 +340,134 @@ public class ImposterBoss : EnemyController {
         }
     }
 
-    protected void FireProjectiles(int numProjectiles)
+    public GameObject mLaserPrefab;
+    public float mLaserFireTime = 3.0f;
+    public float mLaserRotationRate = 90.0f;
+    public float mLaserProjectileInterval = 0.5f;
+    public float mDelayAfterLaser = 4.0f;
+    protected float mLaserProjectileInteralTimer = 0.0f;
+    protected float mLaserFireTimer = 0.0f;
+    protected bool mbLaserStarted = false;
+    protected bool mbLaseredLastTime = false;
+    protected void HandleLaserPhaseAction(BasePlayer player, float sqrdistToPlayer, Vector3 dirToPlayer)
+    {
+        if(mbLaserStarted)
+        {
+            Vector3 dirToStartPos = mStartingPos - transform.position;
+            float sqrDist = dirToStartPos.sqrMagnitude;
+            if(sqrDist > 0.1f)
+            {
+                mEnemy.LookAtPoint(mStartingPos);
+                mEnemy.MoveDir(dirToStartPos.normalized, 2.0f);
+            }
+            else
+            {
+                // spin and fire laser 
+                mEnemy.Stop();
+                mEnemy.transform.Rotate(Vector3.up * mLaserRotationRate * Time.deltaTime);
+
+                mLaserProjectileInteralTimer -= Time.deltaTime;
+                if(mLaserProjectileInteralTimer <= 0.0)
+                {
+                    FireProjectiles(mLaserPrefab, 6, 60.0f, mProjectileSpeed*0.5f);
+                    mLaserProjectileInteralTimer = mLaserProjectileInterval;
+                }
+
+
+                mLaserFireTimer -= Time.deltaTime;
+                if(mLaserFireTimer <= 0.0f)
+                {
+                    mbLaserStarted = false;
+                    mMovementDelayTimer = mDelayAfterLaser;
+                    mActionTimer = mMovementDelayTimer;
+                }
+            }
+        }
+        else if (mAttackStarted)
+        {
+            mAttackDelayTimer -= Time.deltaTime;
+            if (mAttackDelayTimer > 0.0f)
+            {
+                mEnemy.LookDir(mLastAttackDir);
+                if (mMovementDelayTimer <= 0.0f)
+                {
+                    mEnemy.MoveDir(mLastAttackDir, 2f);
+                }
+            }
+            else
+            {
+                mEnemy.LookDir(mLastAttackDir);
+                mEnemy.Attack(player.transform.position);
+                mAttackCount++;
+                mAttackDelayTimer = mAttackDelayTime;
+                if (mAttackCount >= 3)
+                {
+                    mAttackStarted = false;
+                    mActionTimer = mActionRate;
+                    mMovementDelayTimer = mMovementDelayTime;
+                }
+            }
+        }
+        else
+        {
+            if (sqrdistToPlayer > mAttackRadiusSquared * 2.5f)
+            {
+                mEnemy.LookAtPoint(player.transform.position);
+                mEnemy.MoveDir(dirToPlayer, 1.75f);
+            }
+            else
+            {
+                if (mbLaseredLastTime)
+                {
+                    mEnemy.Stop();
+                    Instantiate(mSpawnVFXPrefab, transform.position, Quaternion.identity);
+                    EnemyController[] minions = new EnemyController[3];
+                    minions[0] = this;
+                    minions[1] = SpawnMinion(mMinionPrefab, transform.position + transform.right * 3, player);
+                    minions[2] = SpawnMinion(mMinionPrefab, transform.position - transform.right * 3, player);
+
+                    EnemyController minionToSwitchWith = minions[Random.Range(0, 3)];
+                    if (minionToSwitchWith != null)
+                    {
+                        Vector3 switchPos = minionToSwitchWith.transform.position;
+                        minionToSwitchWith.mEnemy.TeleportTo(transform.position);
+                        mEnemy.TeleportTo(switchPos);
+
+                        dirToPlayer = player.transform.position - transform.position;
+                    }
+
+                    mEnemyPlayer.mSwingMidwayCallback = mEnemyPlayer.OnMeleeSwingMidway;
+                    mAttackCount = 0;
+                    mAttackStarted = true;
+                    mLastAttackDir = dirToPlayer;
+                    mMovementDelayTimer = mMovementDelayTime * 0.5f;
+                    mAttackDelayTimer = mAttackDelayTime;
+                    mbLaseredLastTime = false;
+                }
+                else
+                {
+                    mbLaserStarted = true;
+                    mbLaseredLastTime = true;
+                    mLaserFireTimer = mLaserFireTime;
+                }
+
+            }
+        }
+    }
+
+    protected void FireProjectiles(GameObject prefab, int numProjectiles, float spreadAngle, float speed)
     {
         SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_player_atk_ranged);
 
         Vector3 startPos = transform.position + transform.up * 0.5f;
         Vector3 rotation = transform.eulerAngles;
-        rotation.y -= numProjectiles / 2.0f * mSpreadAngle;
+        rotation.y -= numProjectiles / 2.0f * spreadAngle;
         for (int i = 0; i < numProjectiles; ++i)
         {
             Vector3 dir = Quaternion.Euler(rotation) * Vector3.forward;
-            mEnemy.FireProjectile(mEnemy, mEnemyPlayer.mProjectilePrefab, startPos + dir, dir, mProjectileSpeed, Quaternion.identity);
+            mEnemy.FireProjectile(mEnemy, prefab, startPos + dir, dir, speed, Quaternion.identity);
 
-            rotation.y += mSpreadAngle;
+            rotation.y += spreadAngle;
         }
     }
 
