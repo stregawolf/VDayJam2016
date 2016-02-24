@@ -169,7 +169,6 @@ public class ImposterBoss : EnemyController {
     protected int mAttackCount = 0;
     protected Vector3 mLastAttackDir;
     protected bool mAttackStarted = false;
-    protected float mAttackDelayTimer = 0.0f;
     public const float mAttackDelayTime = 0.25f;
 
     protected void HandleMeleePhaseAction(BasePlayer player, float sqrdistToPlayer, Vector3 dirToPlayer)

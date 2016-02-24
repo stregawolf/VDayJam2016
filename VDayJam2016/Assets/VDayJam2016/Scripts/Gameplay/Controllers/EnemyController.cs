@@ -3,17 +3,20 @@ using System.Collections;
 
 public class EnemyController : MonoBehaviour {
     public BaseEnemy mEnemy;
+    public float mMinDistance = 0.0f;
     public float mVisionRadius = 5.0f;
     public float mAttackRadius = 1.0f;
     public bool mStopWhileFlickering = true;
+    protected float mMinDistanceSquared;
     protected float mVisionRadiusSquared;
     protected float mAttackRadiusSquared;
     protected Vector3 mOriginalPos;
 
     public float mInitialResponseDelay = 0.0f;
-    protected float mInitialResponseDelayTimer = 0.0f;
+    public float mAttackPauseTime = 0.25f;
+    protected float mResponseDelayTimer = 0.0f;
     public float mDefaultTimeBetweenAttacks = 1.0f;
-    protected float mAttackDelayTImer = 0.0f;
+    protected float mAttackDelayTimer = 0.0f;
 
     public enum EnemyState
     {
@@ -37,7 +40,8 @@ public class EnemyController : MonoBehaviour {
     [ContextMenu("Init")]
     public virtual void Init()
     {
-        mInitialResponseDelayTimer = mInitialResponseDelay;
+        mResponseDelayTimer = mInitialResponseDelay;
+        mMinDistanceSquared = mMinDistance * mMinDistance;
         mVisionRadiusSquared = mVisionRadius * mVisionRadius;
         mAttackRadiusSquared = mAttackRadius * mAttackRadius;
         mOriginalPos = transform.position;
@@ -50,12 +54,12 @@ public class EnemyController : MonoBehaviour {
             return;
         }
 
-        if(mInitialResponseDelayTimer > 0)
+        if(mResponseDelayTimer > 0)
         {
-            mInitialResponseDelayTimer -= Time.deltaTime;
+            mResponseDelayTimer -= Time.deltaTime;
             return;
         }
-        mAttackDelayTImer -= Time.deltaTime;
+        mAttackDelayTimer -= Time.deltaTime;
         switch (mCurrentState)
         {
             case EnemyState.Idle:
@@ -85,12 +89,12 @@ public class EnemyController : MonoBehaviour {
     {
         Vector3 dirToPlayer = player.transform.position - transform.position;
         float sqrdistToPlayer = dirToPlayer.sqrMagnitude;
-        if (sqrdistToPlayer <= mAttackRadiusSquared && mAttackDelayTImer <= 0.0f)
+        if (sqrdistToPlayer <= mAttackRadiusSquared && mAttackDelayTimer <= 0.0f)
         {
-            mAttackDelayTImer = mDefaultTimeBetweenAttacks;
-            mEnemy.transform.rotation = Quaternion.LookRotation(dirToPlayer.normalized);
             mEnemy.Attack(player.transform.position);
             mCurrentState = EnemyState.Attack;
+            mResponseDelayTimer = mAttackPauseTime;
+            mAttackDelayTimer = mDefaultTimeBetweenAttacks;
         }
         else if (sqrdistToPlayer <= mVisionRadiusSquared)
         {
@@ -116,16 +120,29 @@ public class EnemyController : MonoBehaviour {
     {
         Vector3 dirToPlayer = player.transform.position - transform.position;
         float sqrdistToPlayer = dirToPlayer.sqrMagnitude;
-        if(sqrdistToPlayer <= mAttackRadiusSquared && mAttackDelayTImer <= 0.0f)
+        if(sqrdistToPlayer <= mAttackRadiusSquared && mAttackDelayTimer <= 0.0f)
         {
-            mAttackDelayTImer = mDefaultTimeBetweenAttacks;
             mEnemy.Attack(player.transform.position);
             mCurrentState = EnemyState.Attack;
+            mResponseDelayTimer = mAttackPauseTime;
+            mAttackDelayTimer = mDefaultTimeBetweenAttacks;
+        }
+        else if(sqrdistToPlayer <= mMinDistanceSquared)
+        {
+            dirToPlayer.Normalize();
+            mEnemy.MoveDir(-dirToPlayer);
         }
         else if (sqrdistToPlayer <= mVisionRadiusSquared)
         {
-            dirToPlayer.Normalize();
-            mEnemy.MoveDir(dirToPlayer);
+            if(sqrdistToPlayer > mAttackRadiusSquared)
+            {
+                dirToPlayer.Normalize();
+                mEnemy.MoveDir(dirToPlayer);
+            }
+            else
+            {
+                mEnemy.LookAtPoint(player.transform.position);
+            }
         }
         else
         {
@@ -161,14 +178,14 @@ public class EnemyController : MonoBehaviour {
 
         if (Vector3.SqrMagnitude(player.transform.position - transform.position) <= mVisionRadiusSquared)
         {
-            Debug.Log("Player detected");
+            //Debug.Log("Player detected");
             if (mbRunsFromPlayer)
             {
                 mCurrentState = EnemyState.Flee;
             }
             else
             {
-                Debug.Log("Chasing");
+                //Debug.Log("Chasing");
                 mCurrentState = EnemyState.Chase;
             }
         }

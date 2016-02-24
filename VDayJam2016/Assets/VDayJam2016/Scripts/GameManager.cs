@@ -19,9 +19,12 @@ public class GameManager : MonoBehaviour {
     public FollowCamera mFollowCamera;
     public Fader mFader;
     
-    public bool mbUseTestGenerationData = true;
     public DungeonGenerationData mTestGenerationData;
     protected DungeonGenerationData mCurrentLevelData;
+    
+    public DungeonGenerationData[] mEasyDungeons;
+    public DungeonGenerationData[] mMediumDungeons;
+    public DungeonGenerationData[] mHardDungeons;
 
     public LevelData mShopLevelData;
     public LevelData mReviveZoneLevelData;
@@ -191,9 +194,13 @@ public class GameManager : MonoBehaviour {
 
     public void GenerateLevel()
     {
-        if(mbUseTestGenerationData)
+        if(mTestGenerationData != null)
         {
             mCurrentLevelData = mTestGenerationData;
+        }
+        else
+        {
+            DetermineCurrentLevelData();
         }
 
         if(GlobalData.NumHearts <= 0)
@@ -216,6 +223,22 @@ public class GameManager : MonoBehaviour {
         GenerateEnemies();
 
         Signal.Dispatch(SignalType.LevelStart);
+    }
+
+    protected void DetermineCurrentLevelData()
+    {
+        if(GlobalData.BossDefeated(GlobalData.BossId.Chocolate))
+        {
+            mCurrentLevelData = mHardDungeons[Random.Range(0, mHardDungeons.Length)];
+        }
+        else if(GlobalData.BossDefeated(GlobalData.BossId.Flower))
+        {
+            mCurrentLevelData = mMediumDungeons[Random.Range(0, mMediumDungeons.Length)];
+        }
+        else
+        {
+            mCurrentLevelData = mEasyDungeons[Random.Range(0, mEasyDungeons.Length)];
+        }
     }
 
     protected void ClearProjectiles()
