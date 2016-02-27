@@ -9,6 +9,8 @@ public class BaseActor : MonoBehaviour {
     public bool mbFaceMovementDirection = true;
     public float mFlickerTime = 0.5f;
 
+    public float mKnockbackScaler = 1.0f;
+
     public GameObject mModel;
 
     public Animator mAnimator;
@@ -205,8 +207,8 @@ public class BaseActor : MonoBehaviour {
             mRigidbody.MovePosition(dest);
         }
         */
-        MoveBy(Vector3.Scale(vec, Vector3.right));
-        MoveBy(Vector3.Scale(vec, Vector3.forward));
+        MoveBy(Vector3.Scale(vec, Vector3.right) * mKnockbackScaler);
+        MoveBy(Vector3.Scale(vec, Vector3.forward) * mKnockbackScaler);
     }
 
     public virtual void OnDeath()

@@ -4,7 +4,6 @@ using System.Collections;
 public class EnemyPlayer : BaseEnemy {
     public float mSwingRadius = 1.0f;
     public int mMeleeDamage = 1;
-    public GameObject mProjectilePrefab;
     public float mThrowVelocity = 20.0f;
 
     public GameObject mMeleeWeaponModel;

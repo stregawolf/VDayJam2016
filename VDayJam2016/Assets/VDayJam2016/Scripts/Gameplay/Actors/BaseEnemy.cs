@@ -10,6 +10,9 @@ public class BaseEnemy : BaseActor {
     public int mMinHeartsValue = 1;
     public int mMaxHeartsValue = 10;
 
+    public GameObject mProjectilePrefab;
+    public float mThrowSpeed = 10.0f;
+
     public bool mIsBoss = false;
 
     public GameObject mDeathVFX;
@@ -22,8 +25,21 @@ public class BaseEnemy : BaseActor {
         }
 
         Stop();
-        LookAtPoint(target);
-        TriggerAnimation("EnemyAttack");
+
+        Vector3 dir = target - transform.position;
+        dir.y = transform.position.y;
+        dir.Normalize();
+        transform.rotation = Quaternion.LookRotation(dir, Vector3.up);
+
+        if (mProjectilePrefab != null)
+        {
+            Vector3 startPos = transform.position + transform.up * 0.5f + transform.forward * 0.5f;
+            FireProjectile(this, mProjectilePrefab, startPos, transform.forward, mThrowSpeed, Quaternion.identity);
+        }
+        else
+        {
+            TriggerAnimation("EnemyAttack");
+        }
     }
 
     public virtual void OnAttackLanded()
@@ -63,7 +79,7 @@ public class BaseEnemy : BaseActor {
     {
         base.OnDeath();
         SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_monster_pop);
-        int heartValue = Random.Range(mMinHeartsValue, mMaxHeartsValue);
+        int heartValue = Random.Range(mMinHeartsValue, mMaxHeartsValue + 1);
         if(heartValue > 0)
         {
             HeartProjectile heart = DropHeart(heartValue);

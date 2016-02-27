@@ -111,7 +111,6 @@ public class BasePlayer : BaseActor {
                 for (int i = 0, n = colliders.Length; i < n; ++i)
                 {
                     BaseEnemy enemy = colliders[i].GetComponentInParent<BaseEnemy>();
-
                     if (enemy != null && enemy != this)
                     {
                         Vector3 dirToEnemy = enemy.transform.position - transform.position;
