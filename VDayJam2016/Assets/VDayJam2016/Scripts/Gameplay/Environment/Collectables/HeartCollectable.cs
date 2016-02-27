@@ -6,7 +6,7 @@ public class HeartCollectable : BaseCollectable
     public GameObject mCollectionVFX;
     public override void OnCollect(GameObject collector)
     {
-        SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_pickup2);
+        SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_pickup2, .5f);
         BasePlayer hitPlayer = collector.GetComponentInParent<BasePlayer>();
         if (hitPlayer != null)
         {

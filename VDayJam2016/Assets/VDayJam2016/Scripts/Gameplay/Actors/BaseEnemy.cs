@@ -16,6 +16,8 @@ public class BaseEnemy : BaseActor {
     public bool mIsBoss = false;
 
     public GameObject mDeathVFX;
+    
+    public AudioClip hurtSFX;
 
     public virtual void Attack(Vector3 target)
     {
@@ -69,6 +71,7 @@ public class BaseEnemy : BaseActor {
     {
         Stop();
         base.TakeDamage(amount);
+        SoundManager.Instance.PlaySfx(hurtSFX);
         if(mDeathVFX != null && mHp <= 0)
         {
             Instantiate(mDeathVFX, transform.position, Quaternion.identity);
