@@ -19,7 +19,7 @@ public class BankTeller : MonoBehaviour {
                 {
                     GlobalData.NumBankedHearts += mTransferAmount;
                     GlobalData.NumHearts -= mTransferAmount;
-                    mDialogText.Show(string.Format("{0} hearts deposited!", mTransferAmount));
+                    mDialogText.Show(string.Format("{0} heart deposited!", mTransferAmount));
                     Instantiate(mSuccessVFX, transform.position, Quaternion.identity);
                 }
                 else
@@ -33,12 +33,12 @@ public class BankTeller : MonoBehaviour {
                 {
                     GlobalData.NumBankedHearts -= mTransferAmount;
                     GlobalData.NumHearts += mTransferAmount;
-                    mDialogText.Show(string.Format("{0} hearts Withdrawn!", mTransferAmount),3);
+                    mDialogText.Show(string.Format("{0} heart Withdrawn!", mTransferAmount),3);
                     Instantiate(mSuccessVFX, player.transform.position, Quaternion.identity);
                 }
                 else
                 {
-                    mDialogText.Show("No hearts to withdraw");
+                    mDialogText.Show("No heart to withdraw");
                 }
             }
         }

@@ -1,9 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerController : MonoBehaviour {
+public class PlayerController : MonoBehaviour
+{
+    public const float kActionDelayTime = 0.1f;
+
     public BasePlayer mPlayer;
     protected Plane mGroundPlane;
+    protected float mActionDelayTimer = 0.0f;
 
     public enum QueuedActionType
     {
@@ -56,13 +60,14 @@ public class PlayerController : MonoBehaviour {
             {
                 mQueuedAction = QueuedActionType.ChangeToMelee;
             }
+            mActionDelayTimer = kActionDelayTime;
         }
-        
+        /*
         if(Input.GetKeyDown(KeyCode.Space))
         {
             mPlayer.mDialogText.Show("TEST test test\nTest test");
         }
-
+        */
         if (Input.GetMouseButtonDown(0))
         {
             mPlayer.Attack();
@@ -73,16 +78,26 @@ public class PlayerController : MonoBehaviour {
             return;
         }
 
-        switch(mQueuedAction)
+        if(mActionDelayTimer <= 0.0f)
         {
-            case QueuedActionType.ChangeToMelee:
-                mPlayer.SetEquipedWeaponType(BasePlayer.EquipedWeaponType.Melee);
-                break;
-            case QueuedActionType.ChangeToRange:
-                mPlayer.SetEquipedWeaponType(BasePlayer.EquipedWeaponType.Ranged);
-                break;
+            return;
         }
 
-        mQueuedAction = QueuedActionType.None;
+        mActionDelayTimer -= Time.deltaTime;
+        if (mActionDelayTimer <= 0.0f)
+        {
+            switch (mQueuedAction)
+            {
+                case QueuedActionType.ChangeToMelee:
+                    mPlayer.SetEquipedWeaponType(BasePlayer.EquipedWeaponType.Melee);
+                    break;
+                case QueuedActionType.ChangeToRange:
+                    mPlayer.SetEquipedWeaponType(BasePlayer.EquipedWeaponType.Ranged);
+                    break;
+            }
+            mQueuedAction = QueuedActionType.None;
+        }
+        
+
     }
 }

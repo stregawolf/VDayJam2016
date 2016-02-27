@@ -53,7 +53,7 @@ public class BaseShopItem : MonoBehaviour {
             // not enough
             if (player.mDialogText != null)
             {
-                player.mDialogText.Show("Not enough <3");
+                player.mDialogText.Show("Not enough heart");
             }
         }
     }
