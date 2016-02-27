@@ -334,6 +334,7 @@ public class GameManager : MonoBehaviour {
     {
         mPlayer1.mPlayer.TeleportTo(mStartPos);
         mPlayer1.mPlayer.Revive();
+        mPlayer1.mPlayer.Stop();
     }
 
     public void OnLevelComplete()
@@ -435,7 +436,12 @@ public class GameManager : MonoBehaviour {
 
     public void QuitToTitle()
     {
-        mFader.FadeOut(() => SceneManager.LoadScene("Title"));
+        GoToScene("Title");
+    }
+
+    public void GoToScene(string sceneName)
+    {
+        mFader.FadeOut(() => SceneManager.LoadScene(sceneName));
     }
 
     public void LoadBossLevel(GlobalData.BossId bossId)
@@ -492,7 +498,7 @@ public class GameManager : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.F4))
         {
-            GlobalData.NumHearts += 25;
+            GlobalData.NumHearts += 1000;
         }
 
         if (Input.GetKeyDown(KeyCode.F5))

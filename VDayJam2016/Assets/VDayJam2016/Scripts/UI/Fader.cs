@@ -7,6 +7,7 @@ public class Fader : MonoBehaviour {
     public Image mImage;
 
     protected bool mIsFading = false;
+    public bool IsFading { get { return mIsFading; } }
 
     public void FadeIn(System.Action onComplete = null, float fadeTime = 1.0f)
     {

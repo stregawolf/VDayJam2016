@@ -78,7 +78,7 @@ public class EnemyPlayer : BaseEnemy {
             {
                 Vector3 dirToEnemy = player.transform.position - transform.position;
                 dirToEnemy.Normalize();
-                if (Vector3.Dot(transform.forward, dirToEnemy) > 0.25f)
+                if (Vector3.Dot(transform.forward, dirToEnemy) > 0.45f)
                 {
                     player.KnockBack(dirToEnemy * mMeleeDamage / 2.0f);
                     player.TakeDamage(mMeleeDamage);
