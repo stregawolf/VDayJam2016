@@ -17,6 +17,7 @@ public class BankTeller : MonoBehaviour {
             {
                 if(GlobalData.NumHearts >= mTransferAmount)
                 {
+                    SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_deposit, .5f);
                     GlobalData.NumBankedHearts += mTransferAmount;
                     GlobalData.NumHearts -= mTransferAmount;
                     mDialogText.Show(string.Format("{0} heart deposited!", mTransferAmount));
@@ -31,6 +32,7 @@ public class BankTeller : MonoBehaviour {
             {
                 if (GlobalData.NumBankedHearts >= mTransferAmount)
                 {
+                    SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_withdraw, .5f);
                     GlobalData.NumBankedHearts -= mTransferAmount;
                     GlobalData.NumHearts += mTransferAmount;
                     mDialogText.Show(string.Format("{0} heart Withdrawn!", mTransferAmount),3);

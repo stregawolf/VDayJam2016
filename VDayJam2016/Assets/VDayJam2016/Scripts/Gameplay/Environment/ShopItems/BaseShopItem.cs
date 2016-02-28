@@ -28,6 +28,7 @@ public class BaseShopItem : MonoBehaviour {
             if(OnPurchase())
             {
                 // successful purchase
+                SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_purchase, .5f);
                 GlobalData.NumHearts -= mCost;
                 if (player.mDialogText != null)
                 {

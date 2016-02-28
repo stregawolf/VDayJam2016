@@ -31,6 +31,9 @@ public class SoundManager : MonoBehaviour {
     //SFX
     public AudioClip sfx_confirm;
     public AudioClip sfx_decline;
+    public AudioClip sfx_purchase;
+    public AudioClip sfx_deposit;
+    public AudioClip sfx_withdraw;
     public AudioClip sfx_pickup1;
     public AudioClip sfx_pickup2;
     public AudioClip sfx_player_atk_melee;

@@ -70,8 +70,10 @@ public class BaseEnemy : BaseActor {
     public override void TakeDamage(int amount)
     {
         Stop();
+        if(!IsFlickering){
+            SoundManager.Instance.PlaySfx(hurtSFX);
+        }
         base.TakeDamage(amount);
-        SoundManager.Instance.PlaySfx(hurtSFX);
         if(mDeathVFX != null && mHp <= 0)
         {
             Instantiate(mDeathVFX, transform.position, Quaternion.identity);
@@ -81,7 +83,7 @@ public class BaseEnemy : BaseActor {
     public override void OnDeath()
     {
         base.OnDeath();
-        SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_monster_pop);
+        SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_monster_pop, .5f);
         int heartValue = Random.Range(mMinHeartsValue, mMaxHeartsValue + 1);
         if(heartValue > 0)
         {
