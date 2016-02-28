@@ -361,7 +361,7 @@ public class GameManager : MonoBehaviour {
         mFader.FadeOut(() =>
         {
             SoundManager.Instance.FadeIn();
-            SoundManager.Instance.RestartBgm();
+            SoundManager.Instance.PlayBgm(SoundManager.Instance.bgm_shop);
             
             GlobalData.NumHearts = 1;
             GlobalData.NumAmmo = GlobalData.MaxAmmo;
