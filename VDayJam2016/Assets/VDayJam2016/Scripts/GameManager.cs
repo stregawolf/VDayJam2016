@@ -237,15 +237,15 @@ public class GameManager : MonoBehaviour {
     {
         if(GlobalData.BossDefeated(GlobalData.BossId.Chocolate))
         {
-            mCurrentLevelData = mHardDungeons[Random.Range(0, mHardDungeons.Length)];
+            mCurrentLevelData = mHardDungeons[GlobalData.CurrentFloor%mHardDungeons.Length];
         }
         else if(GlobalData.BossDefeated(GlobalData.BossId.Flower))
         {
-            mCurrentLevelData = mMediumDungeons[Random.Range(0, mMediumDungeons.Length)];
+            mCurrentLevelData = mMediumDungeons[GlobalData.CurrentFloor % mMediumDungeons.Length];
         }
         else
         {
-            mCurrentLevelData = mEasyDungeons[Random.Range(0, mEasyDungeons.Length)];
+            mCurrentLevelData = mEasyDungeons[GlobalData.CurrentFloor % mEasyDungeons.Length];
         }
     }
 

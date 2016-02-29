@@ -108,6 +108,8 @@ public class BasePlayer : BaseActor {
                 SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_player_atk_melee);
                 
                 Collider[] colliders = Physics.OverlapSphere(mModel.transform.position, mSwingRadius);
+                Vector3 knockBackDir = Vector3.zero;
+                int numEnemiesHit = 0;
                 for (int i = 0, n = colliders.Length; i < n; ++i)
                 {
                     BaseEnemy enemy = colliders[i].GetComponentInParent<BaseEnemy>();
@@ -117,11 +119,17 @@ public class BasePlayer : BaseActor {
                         dirToEnemy.Normalize();
                         if (Vector3.Dot(transform.forward, dirToEnemy) > 0.0f)
                         {
-                            KnockBack(-dirToEnemy * 0.33f);
+                            numEnemiesHit++;
+                            knockBackDir += -dirToEnemy;
                             enemy.KnockBack(dirToEnemy * mMeleeDamage * 0.5f);
                             enemy.TakeDamage(mMeleeDamage);
                         }
                     }
+                }
+                if(numEnemiesHit > 0)
+                {
+                    knockBackDir /= numEnemiesHit;
+                    KnockBack(knockBackDir * 0.33f);
                 }
                 break;
             case EquipedWeaponType.Ranged:

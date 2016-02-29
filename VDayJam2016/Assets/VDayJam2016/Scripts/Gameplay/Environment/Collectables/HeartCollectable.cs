@@ -10,8 +10,17 @@ public class HeartCollectable : BaseCollectable
         BasePlayer hitPlayer = collector.GetComponentInParent<BasePlayer>();
         if (hitPlayer != null)
         {
-            hitPlayer.mDialogText.Show("+1 Heart", 2.0f);
-            GlobalData.NumHearts++;
+            if(GlobalData.BossDefeated(GlobalData.BossId.Chocolate))
+            {
+                hitPlayer.mDialogText.Show("+2 Heart", 2.0f);
+                GlobalData.NumHearts += 2;
+            }
+            else
+            {
+                hitPlayer.mDialogText.Show("+1 Heart", 2.0f);
+                GlobalData.NumHearts++;
+            }
+            
             Instantiate(mCollectionVFX, transform.position, Quaternion.identity);
             base.OnCollect(collector);
         }

@@ -290,6 +290,11 @@ public class BaseActor : MonoBehaviour {
             dir.y = 0;
             dir.Normalize();
             Vector3 spawnPos = startPos + dir;// * 0.5f;
+            if (GameManager.Instance.mDungeon.GetCell(mRigidbody.position).mTileType == DungeonCell.TileType.Wall)
+            {
+                continue;
+            }
+
             HeartProjectile projectile = FireProjectile(null, mHeartProjectilePrefab, spawnPos, dir, Random.Range(3.0f, 10.0f), Quaternion.identity) as HeartProjectile;
             projectile.mHeartValue = value;
             projectile.transform.localScale *= scale;

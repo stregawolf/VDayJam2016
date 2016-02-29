@@ -45,10 +45,12 @@ public class PlayerController : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.Alpha1))
         {
             mQueuedAction = QueuedActionType.ChangeToMelee;
+            mActionDelayTimer = kActionDelayTime;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             mQueuedAction = QueuedActionType.ChangeToRange;
+            mActionDelayTimer = kActionDelayTime;
         }
         else if(Input.GetAxis("Mouse ScrollWheel") != 0)
         {

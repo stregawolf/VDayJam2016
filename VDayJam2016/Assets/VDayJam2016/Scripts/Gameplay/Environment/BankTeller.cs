@@ -13,7 +13,7 @@ public class BankTeller : MonoBehaviour {
         BasePlayer player = c.collider.GetComponentInParent<BasePlayer>();
         if (player != null)
         {
-            if(mIsDeposit)
+            if (mIsDeposit)
             {
                 if(GlobalData.NumHearts >= mTransferAmount)
                 {
@@ -22,6 +22,7 @@ public class BankTeller : MonoBehaviour {
                     GlobalData.NumHearts -= mTransferAmount;
                     mDialogText.Show(string.Format("{0} heart deposited!", mTransferAmount));
                     Instantiate(mSuccessVFX, transform.position, Quaternion.identity);
+                    
                     GlobalData.Save();
                 }
                 else
