@@ -39,6 +39,7 @@ public class BaseShopItem : MonoBehaviour {
                 {
                     Destroy(gameObject);
                 }
+                GlobalData.Save();
             }
             else
             {

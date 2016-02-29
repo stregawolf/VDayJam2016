@@ -88,7 +88,14 @@ public class GameManager : MonoBehaviour {
         }
         else
         {
-            GenerateLevel();
+            if(GlobalData.GameLoaded)
+            {
+                LoadLevel(mShopLevelData);
+            }
+            else
+            {
+                GenerateLevel();
+            }
         }
 
         SoundManager.Instance.FadeIn(.25f);
@@ -352,6 +359,7 @@ public class GameManager : MonoBehaviour {
             }
             LoadLevel(mShopLevelData);
             Time.timeScale = 1.0f;
+            GlobalData.Save();
             mFader.FadeIn();
         });
     }

@@ -44,12 +44,13 @@ public static class GlobalData
 
     public enum ItemId
     {
-        Translator,
+        Translator = 0,
         BankKey,
         GiftRing,
         GiftTech,
         GiftFlowers,
         GiftChocolate,
+        NumItems,
     }
     private static HashSet<ItemId> sCollectedItems = new HashSet<ItemId>();
     public static void SetCollectedItem(ItemId id)
@@ -76,10 +77,11 @@ public static class GlobalData
 
     public enum BossId
     {
-        None,
+        None = 0,
         Flower,
         Chocolate,
         Imposter,
+        NumBosses,
     }
     private static HashSet<BossId> sBossesDefeated = new HashSet<BossId>();
     public static void SetBossDefeated(BossId id)
@@ -121,6 +123,9 @@ public static class GlobalData
         }
     }
 
+    private static bool sGameLoaded = false;
+    public static bool GameLoaded { get { return sGameLoaded; } }
+
     public static void ResetData()
     {
         sNumBankedHearts = 0;
@@ -132,12 +137,79 @@ public static class GlobalData
         sCollectedItems.Clear();
         sBossesDefeated.Clear();
         sActiveBoss = BossId.None;
+
+        sGameLoaded = false;
+    }
+
+    public static bool SaveExists()
+    {
+        return PlayerPrefs.GetInt("SaveExists", 0) > 0;
+    }
+
+    public static void Save()
+    {
+        PlayerPrefs.SetInt("PlayerCharacter", (int)sSelectedCharacter);
+
+        PlayerPrefs.SetInt("NumBankedHearts", sNumBankedHearts);
+        PlayerPrefs.SetInt("NumHearts", sNumHearts);
+        PlayerPrefs.SetInt("CurrentFloor", sCurrentFloor);
+        PlayerPrefs.SetInt("NumAmmo", sNumAmmo);
+        PlayerPrefs.SetInt("MaxAmmo", sMaxAmmo);
+
+        foreach(var item in sCollectedItems)
+        {
+            PlayerPrefs.SetInt(string.Format("Item_{0}", item.ToString()), 1);
+        }
+
+        foreach(var boss in sBossesDefeated)
+        {
+            PlayerPrefs.SetInt(string.Format("Boss_{0}", boss.ToString()), 1);
+        }
+
+        PlayerPrefs.SetInt("ActiveBoss", (int)sActiveBoss);
+
+        PlayerPrefs.SetInt("SaveExists", 1);
+    }
+
+    public static void Load()
+    {
+        ResetData();
+
+        sSelectedCharacter = (SelectedCharacter)PlayerPrefs.GetInt("PlayerCharacter", (int)sSelectedCharacter);
+
+        sNumBankedHearts = PlayerPrefs.GetInt("NumBankedHearts", sNumBankedHearts);
+        sNumHearts = PlayerPrefs.GetInt("NumHearts", sNumHearts);
+        sCurrentFloor = PlayerPrefs.GetInt("CurrentFloor", sCurrentFloor);
+        sNumAmmo = PlayerPrefs.GetInt("NumAmmo", sNumAmmo);
+        sMaxAmmo = PlayerPrefs.GetInt("MaxAmmo", sMaxAmmo);
+
+        for(int i = 0, n = (int)ItemId.NumItems; i < n; ++i)
+        {
+            ItemId itemId = (ItemId)i;
+            if(PlayerPrefs.GetInt(string.Format("Item_{0}", itemId.ToString()), 0) > 0)
+            {
+                sCollectedItems.Add(itemId);
+            }
+        }
+
+        for (int i = 0, n = (int)BossId.NumBosses; i < n; ++i)
+        {
+            BossId bossId = (BossId)i;
+            if(PlayerPrefs.GetInt(string.Format("Boss_{0}", bossId.ToString()), 0) > 0)
+            {
+                sBossesDefeated.Add(bossId);
+            }
+        }
+
+        sActiveBoss = (BossId)PlayerPrefs.GetInt("ActiveBoss", (int)sActiveBoss);
+
+        sGameLoaded = true;
     }
 }
 
 public enum SelectedCharacter
 {
-    None,
+    None = 0,
     Rose,
     Vu,
 }
