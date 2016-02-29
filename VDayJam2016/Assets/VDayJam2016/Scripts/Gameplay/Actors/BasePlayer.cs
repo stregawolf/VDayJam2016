@@ -117,7 +117,8 @@ public class BasePlayer : BaseActor {
                         dirToEnemy.Normalize();
                         if (Vector3.Dot(transform.forward, dirToEnemy) > 0.0f)
                         {
-                            enemy.KnockBack(dirToEnemy * mMeleeDamage / 2.0f);
+                            KnockBack(-dirToEnemy * 0.33f);
+                            enemy.KnockBack(dirToEnemy * mMeleeDamage * 0.5f);
                             enemy.TakeDamage(mMeleeDamage);
                         }
                     }

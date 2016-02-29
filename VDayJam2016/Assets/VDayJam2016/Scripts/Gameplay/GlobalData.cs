@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Analytics;
 using System.Collections.Generic;
 using System;
 
@@ -83,7 +84,14 @@ public static class GlobalData
     private static HashSet<BossId> sBossesDefeated = new HashSet<BossId>();
     public static void SetBossDefeated(BossId id)
     {
-        sBossesDefeated.Add(id);
+        if(id != BossId.None)
+        {
+            sBossesDefeated.Add(id);
+            Analytics.CustomEvent(string.Format("BossDefeated-{0}", id.ToString()), new Dictionary<string, object> {
+            { "CurrentFloor", sCurrentFloor},
+            { "NumHearts", TotalHearts }});
+        }
+
         ActiveBoss = BossId.None;
     }
     public static bool BossDefeated(BossId id)
@@ -92,6 +100,7 @@ public static class GlobalData
         {
             return true;
         }
+        
         return sBossesDefeated.Contains(id);
     }
     
@@ -99,7 +108,17 @@ public static class GlobalData
     public static BossId ActiveBoss
     {
         get { return sActiveBoss; }
-        set { sActiveBoss = value; Signal.Dispatch(SignalType.OnFloorChanged); }
+        set
+        {
+            sActiveBoss = value;
+            if(sActiveBoss != BossId.None)
+            {
+                Analytics.CustomEvent(string.Format("BossUnlocked-{0}", sActiveBoss.ToString()), new Dictionary<string, object> {
+                { "CurrentFloor", sCurrentFloor},
+                { "NumHearts", TotalHearts }});
+            }
+            Signal.Dispatch(SignalType.OnFloorChanged);
+        }
     }
 
     public static void ResetData()
