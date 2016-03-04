@@ -32,6 +32,19 @@ public class TitleScreen : MonoBehaviour {
         playTitleTheme();
     }
 
+    protected void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F1))
+        {
+            mFader.FadeOut(() => SceneManager.LoadScene("RoseWin"));
+        }
+
+        if (Input.GetKeyDown(KeyCode.F2))
+        {
+            mFader.FadeOut(() => SceneManager.LoadScene("VuWin"));
+        }
+    }
+
     public void OnContninuePressed()
     {
         GlobalData.Load();
