@@ -83,7 +83,7 @@ public class BaseEnemy : BaseActor {
     public override void OnDeath()
     {
         base.OnDeath();
-        SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_monster_pop, .5f);
+        SoundManager.Instance.PlaySfx(SoundManager.Instance.sfx_monster_pop, .35f);
         int heartValue = Random.Range(mMinHeartsValue, mMaxHeartsValue + 1);
         if(heartValue > 0)
         {
