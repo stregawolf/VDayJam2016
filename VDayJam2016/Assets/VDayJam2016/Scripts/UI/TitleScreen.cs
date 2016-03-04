@@ -61,12 +61,14 @@ public class TitleScreen : MonoBehaviour {
     public void OnCancelNewGamePressed()
     {
         mAreYouSurePopUp.SetActive(false);
+        SoundManager.Instance.PlayMenuDeclineSFX();
     }
 
     public void OnNewGameConfirmedPressed()
     {
         mAreYouSurePopUp.SetActive(false);
         OnPlayPressed();
+        SoundManager.Instance.PlayMenuConfirmSFX();
     }
 
     public void OnPlayPressed()
