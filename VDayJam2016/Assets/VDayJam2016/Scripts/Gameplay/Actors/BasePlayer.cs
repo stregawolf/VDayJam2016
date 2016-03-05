@@ -16,8 +16,12 @@ public class BasePlayer : BaseActor {
     }
     public EquipedWeaponType mEquipedWeaponType = EquipedWeaponType.Melee;
 
+    public Transform mWeaponSlot;
     public GameObject mMeleeWeaponModel;
     public GameObject mRangedWeaponModel;
+
+    protected Vector3 mOriginalWeaponSlotPos;
+    protected Quaternion mOriginalWeaponSlotRotation;
 
     protected override void Awake()
     {
@@ -26,6 +30,9 @@ public class BasePlayer : BaseActor {
         {
             mDialogText = GetComponentInChildren<DialogText>();
         }
+
+        mOriginalWeaponSlotPos = mWeaponSlot.localPosition;
+        mOriginalWeaponSlotRotation = mWeaponSlot.localRotation;
     }
 
     protected void Start()
@@ -97,6 +104,8 @@ public class BasePlayer : BaseActor {
 
     public virtual void SwingWeapon()
     {
+        mWeaponSlot.localPosition = mOriginalWeaponSlotPos;
+        mWeaponSlot.localRotation = mOriginalWeaponSlotRotation;
         TriggerAnimation("WeaponSwing");
     }
 
@@ -150,6 +159,13 @@ public class BasePlayer : BaseActor {
                 mRangedWeaponModel.SetActive(GlobalData.NumAmmo > 0);
                 break;
         }
+    }
+
+    public override void Revive()
+    {
+        base.Revive();
+        mWeaponSlot.localPosition = mOriginalWeaponSlotPos;
+        mWeaponSlot.localRotation = mOriginalWeaponSlotRotation;
     }
 
     public void ThrowProjectile()
