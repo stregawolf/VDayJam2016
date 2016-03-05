@@ -82,6 +82,7 @@ public class GameManager : MonoBehaviour {
 
 	protected void Start () 
     {
+        SoundManager.Instance.FadeIn(.25f);
         if(mTestData != null)
         {
             LoadLevel(mTestData);
@@ -91,15 +92,15 @@ public class GameManager : MonoBehaviour {
             if(GlobalData.GameLoaded)
             {
                 LoadLevel(mShopLevelData);
+                SoundManager.Instance.PlayBgm(SoundManager.Instance.bgm_shop, true);
             }
             else
             {
                 GenerateLevel();
+                SoundManager.Instance.PlayBgm(SoundManager.Instance.bgm_main, true);
             }
         }
 
-        SoundManager.Instance.FadeIn(.25f);
-        SoundManager.Instance.PlayBgm(SoundManager.Instance.bgm_main, true);
         mFader.FadeIn();
 
         Signal.Register(SignalType.LevelComplete, OnLevelComplete);
