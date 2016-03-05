@@ -26,6 +26,6 @@ public class WinScreen : MonoBehaviour {
     private void PlayMusic()
     {
         SoundManager.Instance.FadeIn();
-        SoundManager.Instance.PlayBgm(SoundManager.Instance.bgm_title);
+        SoundManager.Instance.PlayBgm(SoundManager.Instance.bgm_final_room);
     }
 }
